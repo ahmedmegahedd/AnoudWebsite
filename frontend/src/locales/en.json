@@ -1,0 +1,267 @@
+{
+  "nav": {
+    "brand": "Anoud Recruitment",
+    "home": "Home",
+    "jobs": "Jobs",
+    "about": "About",
+    "dashboard": "Dashboard",
+    "jobsManagement": "Jobs Management",
+    "applicants": "Applicants",
+    "welcome": "Welcome",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "home": {
+    "hero": {
+      "title": "Find Your Dream Job",
+      "subtitle": "Discover opportunities that match your skills and aspirations. Join a community of professionals building their careers.",
+      "cta": "Browse Jobs"
+    },
+    "features": {
+      "title": "Why Choose Us",
+      "subtitle": "We connect talented professionals with innovative companies",
+      "quality": {
+        "title": "Quality Opportunities",
+        "description": "Curated job listings from top companies across various industries"
+      },
+      "growth": {
+        "title": "Career Growth",
+        "description": "Positions that offer advancement and skill development"
+      },
+      "support": {
+        "title": "Personal Support",
+        "description": "Dedicated team to guide you through your career journey"
+      }
+    },
+    "stats": {
+      "title": "Our Impact",
+      "subtitle": "Connecting talent with opportunity",
+      "jobsPosted": "Jobs Posted",
+      "companies": "Companies",
+      "candidatesPlaced": "Candidates Placed",
+      "successRate": "Success Rate"
+    },
+    "cta": {
+      "title": "Ready to Start Your Journey?",
+      "subtitle": "Explore our current opportunities and find the perfect role for your next career move.",
+      "button": "View All Jobs"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "subtitle": "Get in touch with our team",
+      "form": {
+        "title": "Send us a message",
+        "name": "Name",
+        "phone": "Phone Number",
+        "email": "Email",
+        "message": "Question / Message",
+        "submit": "Submit",
+        "sending": "Sending...",
+        "success": "Thank you! Your message has been sent successfully.",
+        "error": "Sorry, there was an error sending your message. Please try again."
+      },
+      "info": {
+        "title": "Get in touch",
+        "company": "Anoud Recruitment",
+        "address": "Address",
+        "addressValue": "29 Hegaz Street, Heliopolis, Cairo, Egypt.",
+        "phone": "Phone",
+        "phoneValue": "+201067730000",
+        "email": "Email",
+        "emailValue": "info@anoudjob.com",
+        "hours": "Business Hours",
+        "hoursValue": "Monday - Friday: 9:00 AM - 6:00 PM\nSaturday: 9:00 AM - 2:00 PM\nSunday: Closed"
+      }
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "About Anoud Recruitment",
+      "subtitle": "Connecting top talent with leading employers across Egypt and the Gulf region"
+    },
+    "story": {
+      "title": "Our Story",
+      "paragraph1": "Anoud Recruitment is a Cairo-based recruitment agency connecting top talent with leading employers in Egypt and the Gulf. We specialize in placing skilled professionals across multiple sectors with speed, accuracy, and integrity.",
+      "paragraph2": "Founded with a vision to bridge the gap between exceptional talent and outstanding opportunities, we've built our reputation on trust, transparency, and results. Our team of experienced recruiters understands the unique challenges of today's job market and works tirelessly to create meaningful connections.",
+      "paragraph3": "Whether you're a professional seeking your next career move or an organization looking for the perfect candidate, we're here to make the process seamless and successful."
+    },
+    "values": {
+      "title": "Our Values",
+      "integrity": {
+        "title": "Integrity",
+        "description": "We operate with complete transparency and ethical practices in all our dealings."
+      },
+      "excellence": {
+        "title": "Excellence",
+        "description": "We strive for excellence in every placement and relationship we build."
+      },
+      "partnership": {
+        "title": "Partnership",
+        "description": "We view our clients and candidates as long-term partners in success."
+      }
+    },
+    "services": {
+      "title": "Our Services",
+      "subtitle": "Comprehensive recruitment solutions for every need",
+      "executive": {
+        "title": "Executive Search",
+        "description": "Specialized recruitment for senior-level positions and executive roles"
+      },
+      "corporate": {
+        "title": "Corporate Recruitment",
+        "description": "Full-service recruitment for corporate positions across all industries"
+      },
+      "international": {
+        "title": "International Placement",
+        "description": "Connecting talent with opportunities across Egypt and the Gulf region"
+      }
+    },
+    "team": {
+      "title": "Our Team",
+      "subtitle": "Experienced professionals dedicated to your success",
+      "founder": {
+        "name": "Mohamed Megahed",
+        "title": "Founder",
+        "description": "With over 10 years of experience in recruitment and talent management, Mohamed leads our mission to connect exceptional talent with outstanding opportunities."
+      }
+    }
+  },
+  "jobs": {
+    "loading": "Loading jobs...",
+    "error": "Error loading jobs",
+    "tryAgain": "Try Again",
+    "backToJobs": "Back to jobs",
+    "noJobs": "No jobs available at the moment.",
+    "apply": "Apply Now",
+    "viewDetails": "View Details",
+    "noJobsAvailable": "No Jobs Available",
+    "checkBackLater": "Check back later for new opportunities",
+    "salary": "Salary",
+    "experience": "Experience",
+    "posted": "Posted",
+    "title": "Available Positions",
+    "subtitle": "Discover opportunities that match your skills and career goals"
+  },
+  "jobDetail": {
+    "company": "Company",
+    "location": "Location",
+    "type": "Job Type",
+    "salary": "Salary",
+    "experience": "Experience Required",
+    "description": "Job Description",
+    "postedAt": "Posted",
+    "noCompany": "No Company",
+    "applyForPosition": "Apply for this position"
+  },
+  "applicationForm": {
+    "title": "Submit Your Application",
+    "subtitle": "Please fill out the form below to apply for this position",
+    "name": "Full Name *",
+    "email": "Email Address *",
+    "phone": "Phone Number *",
+    "education": "Educational Level *",
+    "educationPlaceholder": "Select your educational level",
+    "educationOptions": {
+      "highSchool": "High School",
+      "associate": "Associate's Degree",
+      "bachelor": "Bachelor's Degree",
+      "master": "Master's Degree",
+      "doctorate": "Doctorate",
+      "other": "Other"
+    },
+    "resume": "Resume (PDF, DOCX) *",
+    "resumeHelp": "Accepted formats: PDF, DOC, DOCX (Max 5MB)",
+    "selfIntro": "Tell us briefly about yourself *",
+    "selfIntroPlaceholder": "Tell us about your background, skills, experience, and what makes you a great fit for this position (minimum 30 characters)...",
+    "charCount": "characters minimum",
+    "submit": "Submit Application",
+    "submitting": "Submitting...",
+    "success": "Application submitted successfully!",
+    "error": "Error submitting application",
+    "validation": {
+      "nameRequired": "Name is required",
+      "emailRequired": "Email is required",
+      "phoneRequired": "Phone is required",
+      "educationRequired": "Educational level is required",
+      "selfIntroRequired": "Self introduction is required",
+      "selfIntroMinLength": "Self introduction must be at least 30 characters",
+      "resumeRequired": "Resume is required"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "welcome": "Welcome to the Admin Dashboard",
+      "managePlatform": "Manage your recruitment platform",
+      "stats": {
+        "totalJobs": "Total Jobs",
+        "totalApplications": "Total Applications",
+        "recentJobs": "Recent Jobs",
+        "activeJobs": "Active Jobs",
+        "pendingReviews": "Pending Reviews",
+        "companies": "Companies"
+      },
+      "actions": {
+        "manageJobs": "Manage Jobs",
+        "viewApplicants": "View Applicants",
+        "createEditJobs": "Create, edit, and manage job postings",
+        "reviewApplications": "Review and manage job applications",
+        "viewAnalytics": "View platform statistics and insights"
+      },
+      "quickOverview": "Quick Overview",
+      "recentJobPostings": "Recent Job Postings",
+      "viewAllJobs": "View All Jobs",
+      "noJobsPosted": "No Jobs Posted",
+      "startCreating": "Start by creating your first job posting",
+      "createFirstJob": "Create First Job",
+      "confirmDelete": "Are you sure you want to delete",
+      "analytics": "Analytics"
+    },
+    "jobs": {
+      "title": "Jobs Management",
+      "addJob": "Add New Job",
+      "createCompany": "Create New Company",
+      "unassignedJobs": "Unassigned Jobs",
+      "noJobs": "No jobs found for this company."
+    },
+    "applicants": {
+      "title": "Applicants Management",
+      "viewAllApplicants": "View All Applicants",
+      "unassignedJobs": "Unassigned Jobs",
+      "noJobs": "No jobs found for this company."
+    },
+    "applicantView": {
+      "search": "Search applicants...",
+      "status": "Status",
+      "flagged": "Flagged",
+      "starred": "Starred",
+      "sortBy": "Sort by",
+      "notes": "Notes",
+      "downloadResume": "Download Resume",
+      "noApplications": "No applications found.",
+      "education": "Education",
+      "selfIntro": "Self Introduction"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "close": "Close",
+    "submit": "Submit",
+    "back": "Back",
+    "loadingDashboard": "Loading dashboard..."
+  },
+  "jobTypes": {
+    "fullTime": "Full-Time",
+    "partTime": "Part-Time",
+    "remote": "Remote",
+    "contract": "Contract",
+    "internship": "Internship",
+    "temporary": "Temporary"
+  }
+} 
