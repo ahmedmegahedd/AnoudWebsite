@@ -29,7 +29,7 @@ const Jobs: React.FC = () => {
       // Add the jobId to the form data
       formData.append('jobId', selectedJob!._id);
       
-      const response = await fetch('http://localhost:3231/api/applications', {
+      const response = await fetch('https://www.anoudjob.com/api/applications', {
         method: 'POST',
         body: formData, // FormData is automatically set with correct Content-Type
       });

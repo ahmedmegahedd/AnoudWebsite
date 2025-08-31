@@ -72,7 +72,7 @@ const ApplicantView: React.FC = () => {
     
     try {
       // Fetch job details
-      const jobResponse = await fetch(`http://localhost:3231/api/jobs/${jobId}`);
+      const jobResponse = await fetch(`https://www.anoudjob.com/api/jobs/${jobId}`);
       if (!jobResponse.ok) {
         throw new Error('Job not found');
       }
@@ -102,7 +102,7 @@ const ApplicantView: React.FC = () => {
       params.append('sortBy', sortBy);
       params.append('sortOrder', sortOrder);
       
-      const response = await fetch(`http://localhost:3231/api/applications/job/${jobId}?${params}`, {
+      const response = await fetch(`https://www.anoudjob.com/api/applications/job/${jobId}?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -151,7 +151,7 @@ const ApplicantView: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3231/api/applications/download-cvs', {
+      const response = await fetch('https://www.anoudjob.com/api/applications/download-cvs', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -200,7 +200,7 @@ const ApplicantView: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3231/api/applications/export-data', {
+      const response = await fetch('https://www.anoudjob.com/api/applications/export-data', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -257,7 +257,7 @@ const ApplicantView: React.FC = () => {
   const handleStatusChange = async (applicationId: string, newStatus: Application['status']) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/applications/${applicationId}/status`, {
+      const response = await fetch(`https://www.anoudjob.com/api/applications/${applicationId}/status`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -287,7 +287,7 @@ const ApplicantView: React.FC = () => {
   const handleToggleFlag = async (applicationId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/applications/${applicationId}/flag`, {
+      const response = await fetch(`https://www.anoudjob.com/api/applications/${applicationId}/flag`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -318,7 +318,7 @@ const ApplicantView: React.FC = () => {
   const handleToggleStar = async (applicationId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/applications/${applicationId}/star`, {
+      const response = await fetch(`https://www.anoudjob.com/api/applications/${applicationId}/star`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -351,7 +351,7 @@ const ApplicantView: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/applications/${selectedApplication._id}/notes`, {
+      const response = await fetch(`https://www.anoudjob.com/api/applications/${selectedApplication._id}/notes`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -389,7 +389,7 @@ const ApplicantView: React.FC = () => {
   };
 
   const downloadResume = (resumeFilename: string) => {
-    window.open(`http://localhost:3231/uploads/${resumeFilename}`, '_blank');
+    window.open(`https://www.anoudjob.com/uploads/${resumeFilename}`, '_blank');
   };
 
   const getStatusColor = (status: Application['status']) => {

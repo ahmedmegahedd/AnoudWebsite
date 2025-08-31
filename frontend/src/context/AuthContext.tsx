@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       // Try admin login first
-      let response = await fetch('http://localhost:3231/api/admin/login', {
+      let response = await fetch('https://www.anoudjob.com/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // If admin login fails, try user login
       if (!response.ok) {
-        response = await fetch('http://localhost:3231/api/users/login', {
+        response = await fetch('https://www.anoudjob.com/api/users/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

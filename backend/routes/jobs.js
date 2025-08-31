@@ -13,7 +13,8 @@ router.get('/', async (req, res) => {
       .sort({ postedAt: -1 });
     res.json(jobs);
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error("❌ Error in /api/jobs:", err);
+    next(err); // send to global error handler
   }
 });
 
@@ -25,7 +26,8 @@ router.get('/company/:companyId', async (req, res) => {
       .sort({ postedAt: -1 });
     res.json(jobs);
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error("❌ Error in /company:", err);
+    next(err); // send to global error handler
   }
 });
 
@@ -36,7 +38,8 @@ router.get('/:id', async (req, res) => {
     if (!job) return res.status(404).json({ error: 'Job not found' });
     res.json(job);
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error("❌ Error in /api/jobs:", err);
+    next(err); // send to global error handler
   }
 });
 
