@@ -69,7 +69,7 @@ const RegisterPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:3231/api/users/register', {
+      const response = await fetch('https://www.anoudjob.com/api/users/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,17 +1,53 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const path = require('path');
+const fs = require("fs");
+const express = require("express");
+const https = require("https");
+const WebSocket = require("ws");
+const path = require("path");
 const bcrypt = require('bcryptjs');
-require('dotenv').config();
+require("dotenv").config();
+const mongoose =require("mongoose");
 
 const app = express();
-
+const cors=require('cors');
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+//
+
+// Add both your domains to an array
+ app.use(cors({
+    origin:["https://anoudjob.com","https://www.anoudjob.com"],
+    methods:["GET","POST","DELETE","OPTIONS"],
+    allowedHeaders:["Content-Type","Authorization"],
+    credentials:true
+ }));
+
+ const http = require("http");
+// ...
+const server = http.createServer(app);
+/*
+const privateKey = fs.readFileSync("C:/xampp/apache/conf/anoudjob.com.key", "utf8");
+const certificate = fs.readFileSync("C:/xampp/apache/conf/55e6bed693643160.crt", "utf8");
+
+const server = https.createServer({ key: privateKey, cert: certificate }, app);
+const wss = new WebSocket.Server({ server });
+
+wss.on("connection", (ws) => {
+  console.log("🔌 Client connected (SSL)");
+  ws.send("👋 Hello from secure WebSocket server");
+
+  ws.on("message", (message) => {
+    console.log("📩 Received:", message.toString());
+    ws.send(`You said: ${message}`);
+  });
+
+  ws.on("close", () => {
+    console.log("❌ Client disconnected");
+  });
+});
+*/
+//
 
 // Seed admin users function
 const seedAdmin = async () => {
@@ -79,6 +115,7 @@ mongoose.connect(process.env.MONGO_URI, {
 }).catch(err => console.error(err));
  
 // Routes
+
 app.use('/api/jobs', require('./routes/jobs'));
 app.use('/api/applications', require('./routes/applications'));
 app.use('/api/admin', require('./routes/admin'));
@@ -88,7 +125,20 @@ app.use('/api/contact', require('./routes/contact'));
 app.use('/api/leads', require('./routes/leads'));
 app.use('/api/cv-upload', require('./routes/cvUpload'));
 
-// Health check
-app.get('/', (req, res) => res.send('API running'));
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("🔥 ERROR:", err.stack || err);
+  res.status(500).json({
+    message: "Internal Server Error",
+    error: err.message, // optional, remove in production
+  });
+});
+
+
+
+const PORT = 3000;
+server.listen(PORT, () => {
+  console.log(`✅ Secure WebSocket server running on wss://localhost:${PORT}`);
+});
 
 module.exports = app;

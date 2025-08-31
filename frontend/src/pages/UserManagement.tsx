@@ -52,7 +52,7 @@ const UserManagement: React.FC = () => {
         params.append('search', searchTerm);
       }
 
-      const response = await fetch(`http://localhost:3231/api/users?${params}`, {
+      const response = await fetch(`https://www.anoudjob.com/api/users?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -86,7 +86,7 @@ const UserManagement: React.FC = () => {
       setUpdatingUser(userId);
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`http://localhost:3231/api/users/${userId}/promote`, {
+      const response = await fetch(`https://www.anoudjob.com/api/users/${userId}/promote`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ const UserManagement: React.FC = () => {
       setDeletingUser(userId);
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`http://localhost:3231/api/users/${userId}`, {
+      const response = await fetch(`https://www.anoudjob.com/api/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

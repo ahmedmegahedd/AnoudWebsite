@@ -44,7 +44,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:3231/api/companies');
+      const response = await fetch('https://www.anoudjob.com/api/companies');
       if (!response.ok) {
         throw new Error('Failed to fetch companies');
       }
@@ -60,7 +60,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
   const addCompany = async (company: Omit<Company, '_id' | 'createdAt'>) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3231/api/companies', {
+      const response = await fetch('https://www.anoudjob.com/api/companies', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
   const updateCompany = async (id: string, company: Partial<Company>) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/companies/${id}`, {
+      const response = await fetch(`https://www.anoudjob.com/api/companies/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
   const deleteCompany = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/companies/${id}`, {
+      const response = await fetch(`https://www.anoudjob.com/api/companies/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

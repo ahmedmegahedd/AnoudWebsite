@@ -124,7 +124,7 @@ const Leads: React.FC = () => {
       params.append('sortOrder', sortOrder);
       params.append('page', currentPage.toString());
       
-      const response = await fetch(`http://localhost:3231/api/leads?${params}`, {
+      const response = await fetch(`https://www.anoudjob.com/api/leads?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -149,7 +149,7 @@ const Leads: React.FC = () => {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3231/api/leads/analytics', {
+      const response = await fetch('https://www.anoudjob.com/api/leads/analytics', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -170,7 +170,7 @@ const Leads: React.FC = () => {
   const handleAddLead = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3231/api/leads', {
+      const response = await fetch('https://www.anoudjob.com/api/leads', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -208,7 +208,7 @@ const Leads: React.FC = () => {
     try {
       console.log('🔄 Updating lead:', leadId, 'with updates:', updates);
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/leads/${leadId}`, {
+      const response = await fetch(`https://www.anoudjob.com/api/leads/${leadId}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -238,7 +238,7 @@ const Leads: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/leads/${leadId}`, {
+      const response = await fetch(`https://www.anoudjob.com/api/leads/${leadId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -268,7 +268,7 @@ const Leads: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3231/api/leads/send-email', {
+      const response = await fetch('https://www.anoudjob.com/api/leads/send-email', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -300,7 +300,7 @@ const Leads: React.FC = () => {
   const handleExportCSV = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3231/api/leads/export-csv', {
+      const response = await fetch('https://www.anoudjob.com/api/leads/export-csv', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -383,7 +383,7 @@ const Leads: React.FC = () => {
       const formData = new FormData();
       formData.append('csv', csvFile);
 
-      const response = await fetch('http://localhost:3231/api/leads/import-csv', {
+      const response = await fetch('https://www.anoudjob.com/api/leads/import-csv', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

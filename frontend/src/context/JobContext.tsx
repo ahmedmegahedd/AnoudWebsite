@@ -60,7 +60,7 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('http://localhost:3231/api/jobs');
+      const response = await fetch('https://www.anoudjob.com/api/jobs');
       if (!response.ok) {
         throw new Error('Failed to fetch jobs');
       }
@@ -76,7 +76,7 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
   const addJob = async (jobData: Omit<Job, '_id' | 'postedAt' | 'company'> & { company: string }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3231/api/jobs', {
+      const response = await fetch('https://www.anoudjob.com/api/jobs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
   const updateJob = async (jobId: string, updatedJob: Partial<Omit<Job, 'company'>> & { company?: string }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/jobs/${jobId}`, {
+      const response = await fetch(`https://www.anoudjob.com/api/jobs/${jobId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
   const deleteJob = async (jobId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/jobs/${jobId}`, {
+      const response = await fetch(`https://www.anoudjob.com/api/jobs/${jobId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

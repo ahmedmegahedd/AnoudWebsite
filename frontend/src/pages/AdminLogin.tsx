@@ -14,7 +14,7 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3231/api/admin/login', {
+      const response = await fetch('https://www.anoudjob.com/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
