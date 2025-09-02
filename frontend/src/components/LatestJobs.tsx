@@ -46,7 +46,7 @@ const LatestJobs: React.FC = () => {
         </div>
         
         <div className="jobs-grid">
-          {featuredJobs.slice(0, 6).map((job) => (
+          {featuredJobs.slice(0, 8).map((job) => (
             <div key={job._id}>
               {/* Applicant Count Badge - Only visible for admin users */}
               {(user?.role === 'admin' || user?.role === 'superadmin') && job.applicantCount !== undefined && (

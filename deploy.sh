@@ -94,6 +94,43 @@ setup_environment() {
     print_success "Environment setup complete"
 }
 
+# Function to setup Nginx
+setup_nginx() {
+    print_status "Setting up Nginx configuration..."
+    
+    # Check if Nginx is installed
+    if ! command_exists nginx; then
+        print_error "Nginx is not installed. Please install Nginx first."
+        exit 1
+    fi
+    
+    # Copy Nginx configuration
+    if [ -f "nginx.conf" ]; then
+        print_status "Installing Nginx configuration..."
+        sudo cp nginx.conf /etc/nginx/sites-available/anoudjob
+        sudo ln -sf /etc/nginx/sites-available/anoudjob /etc/nginx/sites-enabled/
+        
+        # Remove default site if it exists
+        if [ -L "/etc/nginx/sites-enabled/default" ]; then
+            sudo rm /etc/nginx/sites-enabled/default
+        fi
+        
+        # Test Nginx configuration
+        if sudo nginx -t; then
+            print_success "Nginx configuration is valid"
+        else
+            print_error "Nginx configuration is invalid"
+            exit 1
+        fi
+        
+        # Reload Nginx
+        sudo systemctl reload nginx
+        print_success "Nginx configuration installed and reloaded"
+    else
+        print_warning "nginx.conf not found, skipping Nginx setup"
+    fi
+}
+
 # Function to deploy backend
 deploy_backend() {
     print_status "Deploying backend..."

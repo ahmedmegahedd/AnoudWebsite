@@ -37,6 +37,23 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
+// HTTPS redirect middleware (production only)
+if (isProduction) {
+  app.use((req, res, next) => {
+    // Check if request is HTTP and redirect to HTTPS
+    if (req.headers['x-forwarded-proto'] !== 'https' && req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect(`https://www.anoudjob.com${req.url}`);
+    }
+    
+    // Ensure www subdomain
+    if (req.headers.host === 'anoudjob.com') {
+      return res.redirect(`https://www.anoudjob.com${req.url}`);
+    }
+    
+    next();
+  });
+}
+
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
@@ -64,6 +81,20 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
+
+// API routes
+app.use('/api', require('./routes'));
+
+// Serve static files from frontend build (production only)
+if (isProduction) {
+  // Serve static files
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  
+  // Handle all other routes by serving the React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  });
+}
 
 // Seed admin users function
 const seedAdmin = async () => {

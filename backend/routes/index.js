@@ -1,17 +1,14 @@
-var express = require('express');
-var router = express.Router();
-const app = express();
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
-//
-app.use('/api/jobs', require('./jobs'));
-app.use('/api/applications', require('./applications'));
-app.use('/api/admin', require('./admin'));
-app.use('/api/users', require('./users'));
-app.use('/api/companies', require('./companies'));
-app.use('/api/contact', require('./contact'));
-app.use('/api/leads', require('./leads'));
-app.use('/api/cv-upload', require('./cvUpload'));
+const express = require('express');
+const router = express.Router();
+
+// API routes
+router.use('/jobs', require('./jobs'));
+router.use('/applications', require('./applications'));
+router.use('/admin', require('./admin'));
+router.use('/users', require('./users'));
+router.use('/companies', require('./companies'));
+router.use('/contact', require('./contact'));
+router.use('/leads', require('./leads'));
+router.use('/cv-upload', require('./cvUpload'));
+
 module.exports = router;
