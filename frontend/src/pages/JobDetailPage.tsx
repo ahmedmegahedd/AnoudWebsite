@@ -30,39 +30,41 @@ const JobDetailPage: React.FC = () => {
   }, [jobId, jobs, navigate]);
 
   const handleApply = async (jobId: string) => {
-    if (!user) {
-      // Redirect to login if user is not authenticated
-      navigate('/jobs');
-      return;
-    }
+    // Remove authentication requirement - allow anyone to apply
     setShowForm(true);
   };
 
   const handleSubmit = async (formData: any) => {
     setSubmitting(true);
     try {
-      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}`, {
+      // Use the public route which doesn't require authentication
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/public`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          jobId,
-          userId: user?._id,
-          coverLetter: formData.coverLetter || 'I am interested in this position.',
+          name: formData.get('name'),
+          email: formData.get('email'),
+          phone: formData.get('phone'),
+          education: formData.get('education'),
+          selfIntro: formData.get('selfIntro'),
+          jobId: jobId,
         }),
       });
 
       if (response.ok) {
         // Application submitted successfully
+        alert('Application submitted successfully!');
         setShowForm(false);
-        // You can add a success message here
+        navigate('/jobs'); // Redirect back to jobs page
       } else {
-        throw new Error('Failed to submit application');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit application');
       }
     } catch (error) {
       console.error('Error submitting application:', error);
-      // You can add an error message here
+      alert(`Error submitting application: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setSubmitting(false);
     }

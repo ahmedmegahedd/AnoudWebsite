@@ -53,7 +53,56 @@ router.get('/counts', adminAuth, async (req, res) => {
   }
 });
 
-// Test route without multer
+// Public route for job applications (no authentication required)
+router.post('/public', [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Please provide a valid email address'),
+  body('phone').notEmpty().withMessage('Phone number is required'),
+  body('education').notEmpty().withMessage('Educational level is required'),
+  body('selfIntro').notEmpty().isLength({ min: 30 }).withMessage('Self introduction must be at least 30 characters'),
+  body('jobId').notEmpty().withMessage('Job ID is required'),
+], async (req, res) => {
+  console.log('=== PUBLIC APPLICATION SUBMISSION ===');
+  console.log('Request body:', req.body);
+  console.log('JobId from request:', req.body.jobId);
+  
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array());
+    return res.status(400).json({ errors: errors.array() });
+  }
+  
+  try {
+    // Validate that the job exists
+    const job = await Job.findById(req.body.jobId);
+    if (!job) {
+      console.log('Job not found for ID:', req.body.jobId);
+      return res.status(400).json({ error: 'Job not found' });
+    }
+    console.log('Job found:', job.title);
+    
+    const application = new Application({
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      education: req.body.education,
+      selfIntro: req.body.selfIntro,
+      resume: null,
+      cvText: null,
+      job: new mongoose.Types.ObjectId(req.body.jobId),
+      appliedAt: new Date(),
+    });
+    
+    console.log('Saving public application with job ID:', req.body.jobId);
+    await application.save();
+    res.status(201).json({ message: 'Application submitted successfully' });
+  } catch (err) {
+    console.error('Error saving public application:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Test route without multer (keeping for backward compatibility)
 router.post('/test', [
   body('name').notEmpty(),
   body('email').isEmail(),

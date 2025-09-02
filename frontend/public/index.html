@@ -46,6 +46,16 @@
         link.href = '%PUBLIC_URL%/images/anoud logo.ico?v=' + new Date().getTime();
         document.getElementsByTagName('head')[0].appendChild(link);
       })();
+      
+      // Routing fallback for better compatibility
+      (function() {
+        // Check if we're on a route that might need fallback
+        var path = window.location.pathname;
+        if (path !== '/' && path !== '/index.html') {
+          // Store the intended route for React Router
+          sessionStorage.setItem('intendedRoute', path);
+        }
+      })();
     </script>
   </head>
   <body>

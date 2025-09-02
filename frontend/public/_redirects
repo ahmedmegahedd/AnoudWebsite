@@ -1,0 +1,10 @@
+# Handle React Router - redirect all routes to index.html
+/*    /index.html   200
+
+# Force HTTPS (uncomment if needed)
+# http://anoudjob.com/* https://www.anoudjob.com/:splat 301!
+
+# Handle specific routes if needed
+/jobs/*    /index.html   200
+/about-us    /index.html   200
+/admin/*    /index.html   200

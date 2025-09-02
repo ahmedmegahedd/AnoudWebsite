@@ -549,4 +549,13 @@ const App: React.FC = () => {
   );
 };
 
+// Add a global route handler for better compatibility
+window.addEventListener('load', () => {
+  const intendedRoute = sessionStorage.getItem('intendedRoute');
+  if (intendedRoute && intendedRoute !== window.location.pathname) {
+    sessionStorage.removeItem('intendedRoute');
+    window.history.replaceState(null, '', intendedRoute);
+  }
+});
+
 export default App;

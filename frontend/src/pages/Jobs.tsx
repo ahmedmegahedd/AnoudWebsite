@@ -25,40 +25,8 @@ const Jobs: React.FC = () => {
   };
 
   const handleApply = async (jobId: string) => {
-    if (!user) {
-      alert('Please log in to apply for jobs');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          jobId,
-          userId: user._id,
-          coverLetter: 'I am interested in this position.',
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit application');
-      }
-
-      const result = await response.json();
-      alert(t('applicationForm.success'));
-      setSubmitting(false);
-      setShowForm(false);
-      setSelectedJob(null); // Go back to job list
-    } catch (error) {
-      console.error('Error submitting application:', error);
-      alert(`${t('applicationForm.error')}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      setSubmitting(false);
-    }
+    // Remove authentication requirement - allow anyone to apply
+    setShowForm(true);
   };
 
   const handleSubmit = async (formData: FormData) => {
@@ -67,12 +35,20 @@ const Jobs: React.FC = () => {
       // Add the jobId to the form data
       formData.append('jobId', selectedJob!._id);
       
-      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}`, {
+      // Use the public route which doesn't require authentication
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/public`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: formData, // FormData is automatically set with correct Content-Type
+        body: JSON.stringify({
+          name: formData.get('name'),
+          email: formData.get('email'),
+          phone: formData.get('phone'),
+          education: formData.get('education'),
+          selfIntro: formData.get('selfIntro'),
+          jobId: formData.get('jobId'),
+        }),
       });
 
       if (!response.ok) {
