@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 interface User {
   _id: string;
@@ -52,7 +53,7 @@ const UserManagement: React.FC = () => {
         params.append('search', searchTerm);
       }
 
-      const response = await fetch(`https://www.anoudjob.com/api/users?${params}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.USERS}?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -86,7 +87,7 @@ const UserManagement: React.FC = () => {
       setUpdatingUser(userId);
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`https://www.anoudjob.com/api/users/${userId}/promote`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.USERS}/${userId}/promote`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +127,7 @@ const UserManagement: React.FC = () => {
       setDeletingUser(userId);
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`https://www.anoudjob.com/api/users/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.USERS}/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -160,35 +161,24 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const canManageUser = (targetUser: User) => {
-    // Super admin can manage everyone except themselves
-    if (currentUser?.role === 'superadmin') {
-      return targetUser._id !== currentUser.id;
-    }
-    // Admin can manage users except themselves and other admins/superadmins
-    if (currentUser?.role === 'admin') {
-      return targetUser._id !== currentUser.id && targetUser.role !== 'admin' && targetUser.role !== 'superadmin';
-    }
-    return false;
+  const canModifyUser = (targetUser: User) => {
+    if (!currentUser) return false;
+    return targetUser._id !== currentUser._id;
+  };
+
+  const canDeleteUser = (targetUser: User) => {
+    if (!currentUser) return false;
+    return targetUser._id !== currentUser._id && targetUser.role !== 'admin' && targetUser.role !== 'superadmin';
   };
 
   const canPromoteToAdmin = (targetUser: User) => {
-    if (!canManageUser(targetUser)) return false;
+    if (!canModifyUser(targetUser)) return false;
     return targetUser.role === 'user';
   };
 
   const canDemoteToUser = (targetUser: User) => {
-    if (!canManageUser(targetUser)) return false;
+    if (!canModifyUser(targetUser)) return false;
     return targetUser.role === 'admin';
-  };
-
-  const canDeleteUser = (targetUser: User) => {
-    if (!canManageUser(targetUser)) return false;
-    // Never allow deletion of superadmin or the main admin email
-    if (targetUser.role === 'superadmin' || targetUser.email === 'ahmedmegahedbis@gmail.com') {
-      return false;
-    }
-    return true;
   };
 
   if (loading) {
@@ -395,7 +385,7 @@ const UserManagement: React.FC = () => {
                             )}
 
                             {/* No Actions Available */}
-                            {!canManageUser(user) && (
+                            {!canModifyUser(user) && (
                               <span className="text-secondary" style={{ fontSize: '12px' }}>
                                 No actions available
                               </span>

@@ -17,6 +17,7 @@ interface Job {
   experience_ar: string;
   description_en: string;
   description_ar: string;
+  featured: boolean;
 }
 
 interface JobFormProps {
@@ -41,7 +42,8 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, isSubmitting
     experience_en: '',
     experience_ar: '',
     description_en: '',
-    description_ar: ''
+    description_ar: '',
+    featured: false // Initialize featured
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -388,6 +390,21 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, isSubmitting
               error={!!errors.description_ar}
             />
             {errors.description_ar && <div className="field-error">{errors.description_ar}</div>}
+          </div>
+
+          {/* Featured Job Checkbox */}
+          <div className="form-group">
+            <label className="form-label">
+              <input
+                type="checkbox"
+                name="featured"
+                checked={formData.featured}
+                onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
+                disabled={isSubmitting}
+                style={{ marginRight: '0.5rem' }}
+              />
+              Mark as Featured Job (will appear on home page)
+            </label>
           </div>
 
           {/* Form Actions */}

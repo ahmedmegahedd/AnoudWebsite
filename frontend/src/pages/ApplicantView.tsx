@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 interface Job {
   _id: string;
@@ -36,6 +38,7 @@ interface Application {
 const ApplicantView: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
+  const { token } = useAuth();
   
   const [job, setJob] = useState<Job | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -72,7 +75,7 @@ const ApplicantView: React.FC = () => {
     
     try {
       // Fetch job details
-      const jobResponse = await fetch(`https://www.anoudjob.com/api/jobs/${jobId}`);
+      const jobResponse = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}/${jobId}`);
       if (!jobResponse.ok) {
         throw new Error('Job not found');
       }
@@ -102,7 +105,7 @@ const ApplicantView: React.FC = () => {
       params.append('sortBy', sortBy);
       params.append('sortOrder', sortOrder);
       
-      const response = await fetch(`https://www.anoudjob.com/api/applications/job/${jobId}?${params}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/job/${jobId}?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -151,7 +154,7 @@ const ApplicantView: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://www.anoudjob.com/api/applications/download-cvs', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/download-cvs`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -200,7 +203,7 @@ const ApplicantView: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://www.anoudjob.com/api/applications/export-data', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/export-data`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -257,7 +260,7 @@ const ApplicantView: React.FC = () => {
   const handleStatusChange = async (applicationId: string, newStatus: Application['status']) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://www.anoudjob.com/api/applications/${applicationId}/status`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/${applicationId}/status`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -287,7 +290,7 @@ const ApplicantView: React.FC = () => {
   const handleToggleFlag = async (applicationId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://www.anoudjob.com/api/applications/${applicationId}/flag`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/${applicationId}/flag`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -318,7 +321,7 @@ const ApplicantView: React.FC = () => {
   const handleToggleStar = async (applicationId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://www.anoudjob.com/api/applications/${applicationId}/star`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/${applicationId}/star`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -351,7 +354,7 @@ const ApplicantView: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://www.anoudjob.com/api/applications/${selectedApplication._id}/notes`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/${selectedApplication._id}/notes`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -389,7 +392,7 @@ const ApplicantView: React.FC = () => {
   };
 
   const downloadResume = (resumeFilename: string) => {
-    window.open(`https://www.anoudjob.com/uploads/${resumeFilename}`, '_blank');
+    window.open(`${API_BASE_URL}/uploads/${resumeFilename}`, '_blank');
   };
 
   const getStatusColor = (status: Application['status']) => {

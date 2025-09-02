@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 interface ExtractedLeadData {
   fullName: string;
@@ -23,6 +25,7 @@ interface LeadsCVImportProps {
 const LeadsCVImport: React.FC<LeadsCVImportProps> = ({ onLeadsImported }) => {
   const { t } = useTranslation();
   const { showNotification } = useNotification();
+  const { token } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCreatingLeads, setIsCreatingLeads] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -81,7 +84,6 @@ const LeadsCVImport: React.FC<LeadsCVImportProps> = ({ onLeadsImported }) => {
 
     setIsProcessing(true);
     try {
-      const token = localStorage.getItem('token');
       if (!token) {
         showNotification('Authentication required. Please log in again.', 'error');
         return;
@@ -90,7 +92,7 @@ const LeadsCVImport: React.FC<LeadsCVImportProps> = ({ onLeadsImported }) => {
       const formData = new FormData();
       formData.append('cvZip', uploadedFile);
 
-      const response = await fetch('http://localhost:3231/api/cv-upload/process-zip', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.CV_UPLOAD}/process-zip`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -138,7 +140,6 @@ const LeadsCVImport: React.FC<LeadsCVImportProps> = ({ onLeadsImported }) => {
 
     setIsCreatingLeads(true);
     try {
-      const token = localStorage.getItem('token');
       if (!token) {
         showNotification('Authentication required. Please log in again.', 'error');
         return;
@@ -163,7 +164,7 @@ const LeadsCVImport: React.FC<LeadsCVImportProps> = ({ onLeadsImported }) => {
 
       for (const leadData of leadsData) {
         try {
-          const response = await fetch('http://localhost:3231/api/leads', {
+          const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,

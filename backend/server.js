@@ -5,49 +5,65 @@ const WebSocket = require("ws");
 const path = require("path");
 const bcrypt = require('bcryptjs');
 require("dotenv").config();
-const mongoose =require("mongoose");
+const mongoose = require("mongoose");
 
 const app = express();
-const cors=require('cors');
+const cors = require('cors');
+
+// Environment configuration
+const isProduction = process.env.NODE_ENV === 'production';
+const PORT = process.env.PORT || 3000;
+
+// CORS configuration for production
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = isProduction 
+      ? ['https://www.anoudjob.com', 'https://anoudjob.com']
+      : ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log(`🚫 CORS blocked request from: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors(corsOptions));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  if (isProduction) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  next();
+});
+
+// Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-//
 
-// Add both your domains to an array
- app.use(cors({
-    origin:["https://anoudjob.com","https://www.anoudjob.com"],
-    methods:["GET","POST","DELETE","OPTIONS"],
-    allowedHeaders:["Content-Type","Authorization"],
-    credentials:true
- }));
-
- const http = require("http");
-// ...
-const server = http.createServer(app);
-/*
-const privateKey = fs.readFileSync("C:/xampp/apache/conf/anoudjob.com.key", "utf8");
-const certificate = fs.readFileSync("C:/xampp/apache/conf/55e6bed693643160.crt", "utf8");
-
-const server = https.createServer({ key: privateKey, cert: certificate }, app);
-const wss = new WebSocket.Server({ server });
-
-wss.on("connection", (ws) => {
-  console.log("🔌 Client connected (SSL)");
-  ws.send("👋 Hello from secure WebSocket server");
-
-  ws.on("message", (message) => {
-    console.log("📩 Received:", message.toString());
-    ws.send(`You said: ${message}`);
-  });
-
-  ws.on("close", () => {
-    console.log("❌ Client disconnected");
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
-*/
-//
 
 // Seed admin users function
 const seedAdmin = async () => {
@@ -105,17 +121,28 @@ const seedAdmin = async () => {
 };
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(async () => {
-  console.log('MongoDB connected');
-  // Seed admin user after database connection
-  await seedAdmin();
-}).catch(err => console.error(err));
- 
-// Routes
+const connectDB = async () => {
+  try {
+    if (!process.env.MONGO_URI) {
+      throw new Error('MONGO_URI environment variable is required');
+    }
+    
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    
+    console.log('✅ MongoDB connected successfully');
+    
+    // Seed admin users after successful connection
+    await seedAdmin();
+  } catch (error) {
+    console.error('❌ MongoDB connection failed:', error.message);
+    process.exit(1);
+  }
+};
 
+// Routes
 app.use('/api/jobs', require('./routes/jobs'));
 app.use('/api/applications', require('./routes/applications'));
 app.use('/api/admin', require('./routes/admin'));
@@ -125,20 +152,96 @@ app.use('/api/contact', require('./routes/contact'));
 app.use('/api/leads', require('./routes/leads'));
 app.use('/api/cv-upload', require('./routes/cvUpload'));
 
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error("🔥 ERROR:", err.stack || err);
-  res.status(500).json({
-    message: "Internal Server Error",
-    error: err.message, // optional, remove in production
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ 
+    error: 'Route not found',
+    path: req.originalUrl,
+    method: req.method
   });
 });
 
-
-
-const PORT = 3000;
-server.listen(PORT, () => {
-  console.log(`✅ Secure WebSocket server running on wss://localhost:${PORT}`);
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("🔥 ERROR:", err.stack || err);
+  
+  // Don't leak error details in production
+  const errorMessage = isProduction ? 'Internal Server Error' : err.message;
+  
+  res.status(err.status || 500).json({
+    error: errorMessage,
+    ...(isProduction ? {} : { stack: err.stack })
+  });
 });
+
+// Create HTTP server
+const server = require("http").createServer(app);
+
+// WebSocket setup (optional for production)
+if (!isProduction) {
+  const wss = new WebSocket.Server({ server });
+  
+  wss.on("connection", (ws) => {
+    console.log("🔌 Client connected (WebSocket)");
+    ws.send("👋 Hello from WebSocket server");
+
+    ws.on("message", (message) => {
+      console.log("📩 Received:", message.toString());
+      ws.send(`You said: ${message}`);
+    });
+
+    ws.on("close", () => {
+      console.log("❌ Client disconnected");
+    });
+  });
+}
+
+// Start server
+const startServer = async () => {
+  try {
+    // Connect to database first
+    await connectDB();
+    
+    // Start HTTP server
+    server.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      
+      if (isProduction) {
+        console.log('🔒 Production mode enabled');
+      }
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('✅ Server closed');
+    mongoose.connection.close(false, () => {
+      console.log('✅ MongoDB connection closed');
+      process.exit(0);
+    });
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 SIGINT received, shutting down gracefully');
+  server.close(() => {
+    console.log('✅ Server closed');
+    mongoose.connection.close(false, () => {
+      console.log('✅ MongoDB connection closed');
+      process.exit(0);
+    });
+  });
+});
+
+// Start the server
+startServer();
 
 module.exports = app;

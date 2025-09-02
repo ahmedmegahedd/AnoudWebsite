@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 interface ParsedCVData {
   fullName: string;
@@ -23,6 +25,7 @@ interface CVUploadProps {
 const CVUpload: React.FC<CVUploadProps> = ({ onUsersCreated }) => {
   const { t } = useTranslation();
   const { showNotification } = useNotification();
+  const { token } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCreatingUsers, setIsCreatingUsers] = useState(false);
@@ -82,7 +85,6 @@ const CVUpload: React.FC<CVUploadProps> = ({ onUsersCreated }) => {
 
     setIsProcessing(true);
     try {
-      const token = localStorage.getItem('token');
       if (!token) {
         showNotification('Authentication required. Please log in again.', 'error');
         return;
@@ -91,7 +93,7 @@ const CVUpload: React.FC<CVUploadProps> = ({ onUsersCreated }) => {
       const formData = new FormData();
       formData.append('cvZip', uploadedFile);
 
-      const response = await fetch('http://localhost:3231/api/cv-upload/process-zip', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.CV_UPLOAD}/process-zip`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -139,7 +141,6 @@ const CVUpload: React.FC<CVUploadProps> = ({ onUsersCreated }) => {
 
     setIsCreatingUsers(true);
     try {
-      const token = localStorage.getItem('token');
       if (!token) {
         showNotification('Authentication required. Please log in again.', 'error');
         return;
@@ -147,7 +148,7 @@ const CVUpload: React.FC<CVUploadProps> = ({ onUsersCreated }) => {
 
       const selectedData = Array.from(selectedCVs).map(index => parsedData[index]);
 
-      const response = await fetch('http://localhost:3231/api/cv-upload/create-users', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.CV_UPLOAD}/create-users`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

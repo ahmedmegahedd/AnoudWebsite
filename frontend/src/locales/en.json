@@ -13,8 +13,8 @@
   },
   "home": {
     "hero": {
-      "title": "Find Your Dream Job",
-      "subtitle": "Discover opportunities that match your skills and aspirations. Join a community of professionals building their careers.",
+      "title": "We value your talent and give it the attention it deserves",
+      "subtitle": "Your success is our success",
       "cta": "Browse Jobs"
     },
     "features": {
@@ -70,7 +70,9 @@
         "email": "Email",
         "emailValue": "info@anoudjob.com",
         "hours": "Business Hours",
-        "hoursValue": "Monday - Friday: 9:00 AM - 6:00 PM\nSaturday: 9:00 AM - 2:00 PM\nSunday: Closed"
+        "hoursValue": "Friday and Saturday are off. Sunday to Thursday from 9 to 5.",
+        "hours": "Business Hours",
+        "hoursValue": "Friday and Saturday are off. Sunday to Thursday from 9 to 5."
       }
     }
   },
@@ -140,7 +142,9 @@
     "experience": "Experience",
     "posted": "Posted",
     "title": "Available Positions",
-    "subtitle": "Discover opportunities that match your skills and career goals"
+    "subtitle": "Discover opportunities that match your skills and career goals",
+    "applicant": "Applicant",
+    "applicants": "Applicants"
   },
   "jobDetail": {
     "company": "Company",

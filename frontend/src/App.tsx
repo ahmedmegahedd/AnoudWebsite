@@ -8,6 +8,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginModal from './components/LoginModal';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import WhatsAppFloat from './components/WhatsAppFloat';
 import Home from './pages/Home';
 import Jobs from './pages/Jobs';
 import About from './pages/About';
@@ -365,6 +366,7 @@ const App: React.FC = () => {
           <JobProvider>
             <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <AppContent />
+              <WhatsAppFloat />
             </Router>
           </JobProvider>
         </CompanyProvider>

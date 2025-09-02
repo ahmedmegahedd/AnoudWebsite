@@ -28,6 +28,31 @@ router.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Applications route is working' });
 });
 
+// Get applicant count for all jobs (admin only)
+router.get('/counts', adminAuth, async (req, res) => {
+  try {
+    const counts = await Application.aggregate([
+      {
+        $group: {
+          _id: '$job',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    // Convert to object with job ID as key and count as value
+    const countsMap = counts.reduce((acc, item) => {
+      acc[item._id.toString()] = item.count;
+      return acc;
+    }, {});
+    
+    res.json(countsMap);
+  } catch (err) {
+    console.error('Error fetching application counts:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Test route without multer
 router.post('/test', [
   body('name').notEmpty(),

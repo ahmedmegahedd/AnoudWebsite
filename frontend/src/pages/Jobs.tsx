@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import JobList from '../components/JobList';
 import JobDetail from '../components/JobDetail';
 import ApplicationForm from '../components/ApplicationForm';
+import { useAuth } from '../context/AuthContext';
 import { useJobs } from '../context/JobContext';
+import { useCompanies } from '../context/CompanyContext';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 import { Job } from '../components/JobList'; // Import Job interface from JobList
 
 const Jobs: React.FC = () => {
   const { t } = useTranslation();
   const { jobs, loading, error, fetchJobs } = useJobs();
+  const { user, token } = useAuth();
+  const { companies } = useCompanies();
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -19,8 +24,41 @@ const Jobs: React.FC = () => {
     setShowForm(false);
   };
 
-  const handleApply = () => {
-    setShowForm(true);
+  const handleApply = async (jobId: string) => {
+    if (!user) {
+      alert('Please log in to apply for jobs');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          jobId,
+          userId: user._id,
+          coverLetter: 'I am interested in this position.',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit application');
+      }
+
+      const result = await response.json();
+      alert(t('applicationForm.success'));
+      setSubmitting(false);
+      setShowForm(false);
+      setSelectedJob(null); // Go back to job list
+    } catch (error) {
+      console.error('Error submitting application:', error);
+      alert(`${t('applicationForm.error')}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setSubmitting(false);
+    }
   };
 
   const handleSubmit = async (formData: FormData) => {
@@ -29,8 +67,11 @@ const Jobs: React.FC = () => {
       // Add the jobId to the form data
       formData.append('jobId', selectedJob!._id);
       
-      const response = await fetch('https://www.anoudjob.com/api/applications', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData, // FormData is automatically set with correct Content-Type
       });
 
@@ -97,7 +138,7 @@ const Jobs: React.FC = () => {
       <section className="section">
         <div className="container">
           {!selectedJob && <JobList jobs={jobs} onViewDetails={handleViewDetails} />}
-          {selectedJob && !showForm && <JobDetail job={selectedJob} onApply={handleApply} />}
+          {selectedJob && !showForm && <JobDetail job={selectedJob} onApply={() => handleApply(selectedJob._id)} />}
           {selectedJob && showForm && <ApplicationForm onSubmit={handleSubmit} submitting={submitting} />}
           {selectedJob && (
             <div className="text-center mt-lg">

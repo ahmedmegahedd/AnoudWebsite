@@ -1,6 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
+const nodemailer = require('nodemailer');
+
+// Create transporter for sending emails
+// You can configure this for different email services
+const createTransporter = () => {
+  // Check if email credentials are configured
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn('⚠️ Email credentials not configured. Contact form will only log submissions.');
+    return null;
+  }
+
+  return nodemailer.createTransporter({
+    service: 'gmail', // or 'outlook', 'yahoo', etc.
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+};
 
 // POST /api/contact - Submit contact form
 router.post('/', [
@@ -21,8 +40,8 @@ router.post('/', [
 
     const { name, email, phone, message } = req.body;
 
-    // Log the contact form submission (in a real app, you might save to database or send email)
-    console.log('Contact Form Submission:', {
+    // Log the contact form submission
+    console.log('📧 Contact Form Submission:', {
       name,
       email,
       phone,
@@ -30,12 +49,33 @@ router.post('/', [
       submittedAt: new Date().toISOString()
     });
 
-    // For now, we'll just return success
-    // In a production app, you would:
-    // 1. Save to database
-    // 2. Send email notification
-    // 3. Integrate with CRM system
-    
+    // Try to send email if transporter is available
+    const transporter = createTransporter();
+    if (transporter) {
+      try {
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: 'm.megahed@anoudjob.com',
+          subject: `New Contact Form Submission from ${name}`,
+          html: `
+            <h2>New Contact Form Submission</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Message:</strong></p>
+            <p>${message}</p>
+            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+          `
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log('✅ Email sent successfully to m.megahed@anoudjob.com');
+      } catch (emailError) {
+        console.error('❌ Email sending failed:', emailError);
+        // Continue with the response even if email fails
+      }
+    }
+
     res.status(200).json({ 
       message: 'Contact form submitted successfully',
       data: {
@@ -47,7 +87,7 @@ router.post('/', [
     });
 
   } catch (error) {
-    console.error('Contact form submission error:', error);
+    console.error('❌ Contact form submission error:', error);
     res.status(500).json({ 
       error: 'Internal server error',
       message: 'Failed to submit contact form'

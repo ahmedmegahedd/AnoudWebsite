@@ -32,6 +32,7 @@ interface Job {
   description_en: string;
   description_ar: string;
   postedAt: string;
+  featured?: boolean; // Added featured property
 }
 
 // Interface for JobForm (with company as string ID)
@@ -49,6 +50,7 @@ interface JobFormData {
   experience_ar: string;
   description_en: string;
   description_ar: string;
+  featured: boolean;
 }
 
 const AdminJobs: React.FC = () => {
@@ -147,7 +149,8 @@ const AdminJobs: React.FC = () => {
       experience_en: job.experience_en,
       experience_ar: job.experience_ar,
       description_en: job.description_en,
-      description_ar: job.description_ar
+      description_ar: job.description_ar,
+      featured: job.featured || false // Convert boolean to JobFormData
     };
   };
 
@@ -289,10 +292,52 @@ const AdminJobs: React.FC = () => {
                                 <div>
                                   <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text)' }}>
                                     {job.title_en}
+                                    {job.featured && (
+                                      <span style={{
+                                        background: 'var(--success)',
+                                        color: 'white',
+                                        fontSize: '0.7rem',
+                                        padding: '0.2rem 0.5rem',
+                                        borderRadius: 'var(--radius)',
+                                        marginLeft: '0.5rem'
+                                      }}>
+                                        ⭐ Featured
+                                      </span>
+                                    )}
                                   </h4>
                                   <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                                     {job.location_en} • {job.type} • {job.salary_en}
                                   </div>
+                                  {/* Applicant Count */}
+                                  {job.applicantCount !== undefined && (
+                                    <div style={{ 
+                                      marginTop: '0.75rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '0.5rem'
+                                    }}>
+                                      <span style={{
+                                        background: 'var(--primary)',
+                                        color: 'white',
+                                        fontSize: '0.8rem',
+                                        padding: '0.4rem 0.8rem',
+                                        borderRadius: 'var(--radius)',
+                                        fontWeight: '600',
+                                        border: '2px solid var(--primary-dark)',
+                                        boxShadow: '0 2px 8px rgba(0, 122, 255, 0.3)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.25rem'
+                                      }}>
+                                        <span style={{ fontWeight: '800', fontSize: '0.9rem' }}>
+                                          {job.applicantCount}
+                                        </span>
+                                        <span style={{ fontSize: '0.7rem' }}>
+                                          {job.applicantCount === 1 ? 'Applicant' : 'Applicants'}
+                                        </span>
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                   <button
@@ -469,10 +514,51 @@ const AdminJobs: React.FC = () => {
                                 <div>
                                   <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text)' }}>
                                     {job.title_en}
+                                    {job.featured && (
+                                      <span style={{
+                                        background: 'var(--success)',
+                                        color: 'white',
+                                        fontSize: '0.7rem',
+                                        padding: '0.2rem 0.5rem',
+                                        borderRadius: 'var(--radius)',
+                                        marginLeft: '0.5rem'
+                                      }}>
+                                        ⭐ Featured
+                                      </span>
+                                    )}
                                   </h4>
                                   <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                                     {job.location_en} • {job.type} • {job.salary_en}
                                   </div>
+                                  {/* Applicant Count */}
+                                  {job.applicantCount !== undefined && (
+                                    <div style={{ 
+                                      marginTop: '0.75rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '0.5rem'
+                                    }}>
+                                      <span style={{
+                                        background: 'var(--primary)',
+                                        color: 'white',
+                                        padding: '0.4rem 0.8rem',
+                                        borderRadius: 'var(--radius)',
+                                        fontWeight: '600',
+                                        border: '2px solid var(--primary-dark)',
+                                        boxShadow: '0 2px 8px rgba(0, 122, 255, 0.3)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.25rem'
+                                      }}>
+                                        <span style={{ fontWeight: '800', fontSize: '0.9rem' }}>
+                                          {job.applicantCount}
+                                        </span>
+                                        <span style={{ fontSize: '0.7rem' }}>
+                                          {job.applicantCount === 1 ? 'Applicant' : 'Applicants'}
+                                        </span>
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                   <button

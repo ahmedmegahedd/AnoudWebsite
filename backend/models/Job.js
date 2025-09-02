@@ -22,6 +22,7 @@ const JobSchema = new mongoose.Schema({
     enum: ['Full-Time', 'Part-Time', 'Remote', 'Contract'],
     default: 'Full-Time'
   },
+  featured: { type: Boolean, default: false }, // For home page display
   postedAt: { type: Date, default: Date.now },
 });
 

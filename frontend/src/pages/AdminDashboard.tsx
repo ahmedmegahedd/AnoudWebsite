@@ -311,6 +311,16 @@ const AdminDashboard: React.FC = () => {
             <div className="grid grid-2">
               {jobs.slice(0, 4).map(job => (
                 <div className="job-card" key={job._id}>
+                  {/* Applicant Count Badge */}
+                  {job.applicantCount !== undefined && (
+                    <div className="applicant-count-badge">
+                      <span className="applicant-count-number">{job.applicantCount}</span>
+                      <span className="applicant-count-label">
+                        {job.applicantCount === 1 ? t('jobs.applicant') : t('jobs.applicants')}
+                      </span>
+                    </div>
+                  )}
+                  
                   <div className="job-title">{getTranslatedContent(job.title_en, job.title_ar)}</div>
                   <div className="job-company">{job.company ? getTranslatedContent(job.company.name_en, job.company.name_ar) : t('jobDetail.noCompany')}</div>
                   <div className="job-meta">
@@ -355,7 +365,8 @@ const AdminDashboard: React.FC = () => {
             experience_en: editingJob.experience_en,
             experience_ar: editingJob.experience_ar,
             description_en: editingJob.description_en,
-            description_ar: editingJob.description_ar
+            description_ar: editingJob.description_ar,
+            featured: editingJob.featured || false
           } : undefined}
           onSubmit={editingJob ? handleUpdateJob : handleCreateJob}
           onCancel={handleCancelJobForm}

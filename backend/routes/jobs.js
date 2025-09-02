@@ -18,6 +18,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET featured jobs for home page (max 6)
+router.get('/featured', async (req, res) => {
+  try {
+    const featuredJobs = await Job.find({ featured: true })
+      .populate('company', 'name_en name_ar location_en location_ar industry_en industry_ar')
+      .sort({ postedAt: -1 })
+      .limit(6);
+    res.json(featuredJobs);
+  } catch (err) {
+    console.error("❌ Error in /api/jobs/featured:", err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // GET jobs by company
 router.get('/company/:companyId', async (req, res) => {
   try {
@@ -117,6 +131,26 @@ router.put('/:id', adminAuth, [
     res.json({
       message: 'Job updated successfully',
       job
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// PATCH toggle featured status (admin only)
+router.patch('/:id/featured', adminAuth, async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    
+    job.featured = !job.featured;
+    await job.save();
+    
+    const populatedJob = await Job.findById(job._id).populate('company', 'name_en name_ar location_en location_ar industry_en industry_ar');
+    res.json({
+      message: `Job ${job.featured ? 'marked as' : 'unmarked from'} featured`,
+      job: populatedJob
     });
   } catch (err) {
     console.error(err);

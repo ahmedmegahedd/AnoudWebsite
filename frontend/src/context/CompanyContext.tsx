@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 interface Company {
   _id: string;
@@ -44,7 +45,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('https://www.anoudjob.com/api/companies');
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.COMPANIES}`);
       if (!response.ok) {
         throw new Error('Failed to fetch companies');
       }
@@ -60,7 +61,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
   const addCompany = async (company: Omit<Company, '_id' | 'createdAt'>) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://www.anoudjob.com/api/companies', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.COMPANIES}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +86,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
   const updateCompany = async (id: string, company: Partial<Company>) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://www.anoudjob.com/api/companies/${id}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.COMPANIES}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +115,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
   const deleteCompany = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://www.anoudjob.com/api/companies/${id}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.COMPANIES}/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

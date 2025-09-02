@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -69,7 +70,7 @@ const RegisterPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://www.anoudjob.com/api/users/register', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.USERS}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

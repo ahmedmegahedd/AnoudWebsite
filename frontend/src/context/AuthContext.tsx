@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   phone: string;
@@ -55,9 +56,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
+    setIsLoading(true);
+    // setError(null); // This line was removed from the new_code, so it's removed here.
+    
     try {
       // Try admin login first
-      let response = await fetch('https://www.anoudjob.com/api/admin/login', {
+      let response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.ADMIN}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,34 +69,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      let data = await response.json();
-
-      // If admin login fails, try user login
-      if (!response.ok) {
-        response = await fetch('https://www.anoudjob.com/api/users/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        });
-
-        data = await response.json();
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        setToken(data.token);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        return { success: true, role: 'admin' };
       }
 
-      if (!response.ok) {
-        return { success: false, error: data.error || 'Login failed' };
+      // If admin login fails, try regular user login
+      response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.USERS}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        setToken(data.token);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        return { success: true, role: 'user' };
       }
 
-      // Store token and user data
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      return { success: true };
+      const errorData = await response.json();
+      return { success: false, error: errorData.error || 'Login failed' };
     } catch (error) {
       return { success: false, error: 'Network error' };
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,7 +16,7 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch('https://www.anoudjob.com/api/admin/login', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.ADMIN}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

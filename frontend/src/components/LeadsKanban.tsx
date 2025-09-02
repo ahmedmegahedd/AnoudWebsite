@@ -23,6 +23,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 interface Lead {
   _id: string;
@@ -341,10 +342,9 @@ const LeadsKanban: React.FC<LeadsKanbanProps> = ({ leads, onLeadUpdate, onLeadDe
   const loadCustomColumns = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3231/api/leads/custom-columns', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/custom-columns`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -368,11 +368,11 @@ const LeadsKanban: React.FC<LeadsKanbanProps> = ({ leads, onLeadUpdate, onLeadDe
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3231/api/leads/custom-columns', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/custom-columns`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           customColumns: columnsToSave.map(col => ({
@@ -400,11 +400,10 @@ const LeadsKanban: React.FC<LeadsKanbanProps> = ({ leads, onLeadUpdate, onLeadDe
   const deleteCustomColumn = async (columnId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3231/api/leads/custom-columns/${columnId}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/custom-columns/${columnId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${token}`
         }
       });
 

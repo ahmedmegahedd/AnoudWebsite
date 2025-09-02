@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 interface Company {
   _id: string;
@@ -14,27 +15,33 @@ interface Job {
   _id: string;
   title_en: string;
   title_ar: string;
-  company: Company;
   location_en: string;
   location_ar: string;
-  type: string;
   salary_en: string;
   salary_ar: string;
   experience_en: string;
   experience_ar: string;
   description_en: string;
   description_ar: string;
+  type: string;
+  featured: boolean;
   postedAt: string;
+  company: Company;
+  applicantCount?: number; // Number of applicants for this job
 }
 
 interface JobContextType {
   jobs: Job[];
+  featuredJobs: Job[];
   loading: boolean;
   error: string | null;
   fetchJobs: () => Promise<void>;
+  fetchFeaturedJobs: () => Promise<void>;
+  fetchApplicantCounts: () => Promise<void>;
   addJob: (jobData: Omit<Job, '_id' | 'postedAt' | 'company'> & { company: string }) => Promise<void>;
   updateJob: (jobId: string, updatedJob: Partial<Omit<Job, 'company'>> & { company?: string }) => Promise<void>;
   deleteJob: (jobId: string) => Promise<void>;
+  toggleFeatured: (jobId: string) => Promise<void>;
 }
 
 const JobContext = createContext<JobContextType | undefined>(undefined);
@@ -53,6 +60,7 @@ interface JobProviderProps {
 
 export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [featuredJobs, setFeaturedJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,7 +68,7 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('https://www.anoudjob.com/api/jobs');
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}`);
       if (!response.ok) {
         throw new Error('Failed to fetch jobs');
       }
@@ -73,10 +81,51 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
     }
   };
 
+  const fetchFeaturedJobs = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}?featured=true`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch featured jobs');
+      }
+      const data = await response.json();
+      setFeaturedJobs(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load featured jobs');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchApplicantCounts = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/counts`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch applicant counts');
+      }
+      const counts = await response.json();
+      
+      // Update jobs with applicant counts
+      setJobs(prevJobs => prevJobs.map(job => ({
+        ...job,
+        applicantCount: counts[job._id] || 0
+      })));
+      
+      setFeaturedJobs(prevFeaturedJobs => prevFeaturedJobs.map(job => ({
+        ...job,
+        applicantCount: counts[job._id] || 0
+      })));
+    } catch (err) {
+      console.error('Failed to fetch applicant counts:', err);
+      // Don't set error state for this as it's not critical
+    }
+  };
+
   const addJob = async (jobData: Omit<Job, '_id' | 'postedAt' | 'company'> & { company: string }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://www.anoudjob.com/api/jobs', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +150,7 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
   const updateJob = async (jobId: string, updatedJob: Partial<Omit<Job, 'company'>> & { company?: string }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://www.anoudjob.com/api/jobs/${jobId}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}/${jobId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +177,7 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
   const deleteJob = async (jobId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://www.anoudjob.com/api/jobs/${jobId}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}/${jobId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -147,18 +196,56 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
     }
   };
 
+  const toggleFeatured = async (jobId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}/${jobId}/toggleFeatured`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to toggle featured status');
+      }
+
+      setJobs(prevJobs => prevJobs.map(job => 
+        job._id === jobId ? { ...job, featured: !job.featured } : job
+      ));
+      setFeaturedJobs(prevFeatured => prevFeatured.map(job => 
+        job._id === jobId ? { ...job, featured: !job.featured } : job
+      ));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to toggle featured status');
+      throw err;
+    }
+  };
+
   useEffect(() => {
     fetchJobs();
+    fetchFeaturedJobs();
   }, []);
+
+  useEffect(() => {
+    if (jobs.length > 0) {
+      fetchApplicantCounts();
+    }
+  }, [jobs.length]);
 
   const value: JobContextType = {
     jobs,
+    featuredJobs,
     loading,
     error,
     fetchJobs,
+    fetchFeaturedJobs,
+    fetchApplicantCounts,
     addJob,
     updateJob,
     deleteJob,
+    toggleFeatured,
   };
 
   return (

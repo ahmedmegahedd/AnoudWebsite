@@ -5,6 +5,7 @@ import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import LeadsKanban from '../components/LeadsKanban';
 import LeadsCVImport from '../components/LeadsCVImport';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 interface Lead {
   _id: string;
@@ -124,7 +125,7 @@ const Leads: React.FC = () => {
       params.append('sortOrder', sortOrder);
       params.append('page', currentPage.toString());
       
-      const response = await fetch(`https://www.anoudjob.com/api/leads?${params}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -149,7 +150,7 @@ const Leads: React.FC = () => {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://www.anoudjob.com/api/leads/analytics', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/analytics`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -170,7 +171,7 @@ const Leads: React.FC = () => {
   const handleAddLead = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://www.anoudjob.com/api/leads', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -208,7 +209,7 @@ const Leads: React.FC = () => {
     try {
       console.log('🔄 Updating lead:', leadId, 'with updates:', updates);
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://www.anoudjob.com/api/leads/${leadId}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/${leadId}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -238,7 +239,7 @@ const Leads: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://www.anoudjob.com/api/leads/${leadId}`, {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/${leadId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -268,7 +269,7 @@ const Leads: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://www.anoudjob.com/api/leads/send-email', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/send-email`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -300,7 +301,7 @@ const Leads: React.FC = () => {
   const handleExportCSV = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://www.anoudjob.com/api/leads/export-csv', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/export-csv`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -383,7 +384,7 @@ const Leads: React.FC = () => {
       const formData = new FormData();
       formData.append('csv', csvFile);
 
-      const response = await fetch('https://www.anoudjob.com/api/leads/import-csv', {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/import-csv`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
