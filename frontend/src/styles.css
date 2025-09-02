@@ -3657,3 +3657,266 @@ body {
     padding: 0.2rem 0.4rem;
   }
 } 
+
+/* Job Domain Display Styles */
+.job-domain-display {
+  margin-top: 2rem;
+  border: 2px solid var(--primary);
+}
+
+.domain-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.domain-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.domain-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.domain-input-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.domain-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+.domain-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.qr-code-section {
+  text-align: center;
+  padding: 1.5rem;
+  background-color: var(--background-secondary);
+  border-radius: 0.5rem;
+}
+
+.qr-code-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.qr-code-image {
+  max-width: 200px;
+  height: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+}
+
+.qr-code-info {
+  max-width: 300px;
+}
+
+.domain-info {
+  padding: 1rem;
+  background-color: var(--background-tertiary);
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .domain-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .domain-input {
+    order: 1;
+  }
+  
+  .domain-input-group .btn {
+    order: 2;
+  }
+  
+  .qr-code-image {
+    max-width: 150px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .domain-input {
+    background-color: var(--background-primary);
+    color: var(--text-primary);
+  }
+  
+  .qr-code-section {
+    background-color: var(--background-primary);
+  }
+  
+  .domain-info {
+    background-color: var(--background-secondary);
+  }
+}
+
+/* Job Domain Manager Styles */
+.job-domain-manager {
+  padding: 1rem;
+}
+
+.manager-header {
+  text-align: center;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 1rem;
+}
+
+.manager-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.manager-content {
+  margin-top: 2rem;
+}
+
+.job-list-section {
+  background-color: var(--background-secondary);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.job-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.job-item {
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.job-item:hover {
+  background-color: var(--background-tertiary);
+  border-color: var(--primary);
+}
+
+.job-item.selected {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.job-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.job-company {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.job-location {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.job-date {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.domain-info-section {
+  background-color: var(--background-secondary);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.domain-type-selector {
+  margin-bottom: 1rem;
+}
+
+.domain-display {
+  margin-bottom: 1rem;
+}
+
+.domain-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.domain-preview {
+  background-color: var(--background-tertiary);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.domain-variations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.domain-variation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: var(--background-secondary);
+  border-radius: 0.25rem;
+}
+
+.variation-label {
+  font-weight: 600;
+  min-width: 120px;
+}
+
+.variation-value {
+  flex: 1;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Responsive Design for Domain Manager */
+@media (max-width: 768px) {
+  .manager-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .domain-actions {
+    flex-direction: column;
+  }
+  
+  .domain-variation {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .variation-label {
+    min-width: auto;
+  }
+}

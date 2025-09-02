@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 import JobDetail from '../components/JobDetail';
 import ApplicationForm from '../components/ApplicationForm';
+import JobDomainDisplay from '../components/JobDomainDisplay';
 
 const JobDetailPage: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
@@ -108,7 +109,10 @@ const JobDetailPage: React.FC = () => {
       </div>
 
       {!showForm ? (
-        <JobDetail job={selectedJob} onApply={() => handleApply(selectedJob._id)} />
+        <>
+          <JobDetail job={selectedJob} onApply={() => handleApply(selectedJob._id)} />
+          <JobDomainDisplay job={selectedJob} />
+        </>
       ) : (
         <div>
           <ApplicationForm onSubmit={handleSubmit} submitting={submitting} />
