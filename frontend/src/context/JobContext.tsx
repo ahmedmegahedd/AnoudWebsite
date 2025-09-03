@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
+import { useNotification } from './NotificationContext';
 
 interface Company {
   _id: string;
@@ -63,6 +64,7 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
   const [featuredJobs, setFeaturedJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { showNotification } = useNotification();
 
   const fetchJobs = async () => {
     try {
@@ -156,6 +158,9 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
 
       const newJob = await response.json();
       setJobs(prevJobs => [newJob.job, ...prevJobs]);
+      
+      // Show success notification
+      showNotification('Job created successfully!', 'success');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create job');
       throw err;
@@ -183,6 +188,9 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
       setJobs(prevJobs => 
         prevJobs.map(job => job._id === jobId ? updatedJobData.job : job)
       );
+      
+      // Show success notification
+      showNotification('Job updated successfully!', 'success');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update job');
       throw err;
@@ -205,6 +213,9 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
       }
 
       setJobs(prevJobs => prevJobs.filter(job => job._id !== jobId));
+      
+      // Show success notification
+      showNotification('Job deleted successfully!', 'success');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete job');
       throw err;
@@ -232,6 +243,10 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
       setFeaturedJobs(prevFeatured => prevFeatured.map(job => 
         job._id === jobId ? { ...job, featured: !job.featured } : job
       ));
+      
+      // Show success notification
+      const newFeaturedStatus = !jobs.find(job => job._id === jobId)?.featured;
+      showNotification(`Job ${newFeaturedStatus ? 'featured' : 'unfeatured'} successfully!`, 'success');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to toggle featured status');
       throw err;
