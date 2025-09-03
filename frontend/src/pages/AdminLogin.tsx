@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -9,6 +8,7 @@ const AdminLogin: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,26 +16,16 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.ADMIN}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+      // Use the AuthContext login function which handles admin authentication
+      const result = await login(email, password);
+      
+      if (result.success) {
+        // Successfully logged in as admin
+        navigate('/admin/dashboard');
+      } else {
+        // Login failed
+        setError(result.error || 'Login failed');
       }
-
-      // Store token and user data
-      localStorage.setItem('adminToken', data.token);
-      localStorage.setItem('adminUser', JSON.stringify(data.user));
-
-      // Redirect to dashboard
-      navigate('/admin/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {

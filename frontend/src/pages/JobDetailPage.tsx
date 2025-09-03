@@ -38,7 +38,12 @@ const JobDetailPage: React.FC = () => {
     setSubmitting(true);
     try {
       // Use the public route which doesn't require authentication
-      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/public`, {
+      const apiUrl = `${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/public`;
+      console.log('Submitting application to:', apiUrl);
+      console.log('API_BASE_URL:', API_BASE_URL);
+      console.log('API_ENDPOINTS.APPLICATIONS:', API_ENDPOINTS.APPLICATIONS);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,8 +64,17 @@ const JobDetailPage: React.FC = () => {
         setShowForm(false);
         navigate('/jobs'); // Redirect back to jobs page
       } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit application');
+        // Check if response is JSON or HTML
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to submit application');
+        } else {
+          // Response is HTML (likely an error page)
+          const errorText = await response.text();
+          console.error('Server returned HTML instead of JSON:', errorText);
+          throw new Error('Server error - please try again later');
+        }
       }
     } catch (error) {
       console.error('Error submitting application:', error);

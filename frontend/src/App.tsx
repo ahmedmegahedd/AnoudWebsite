@@ -265,85 +265,31 @@ const AppContent: React.FC = () => {
                 
                 {/* User Dropdown Menu */}
                 {showUserMenu && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '100%',
-                      right: 0,
-                      background: 'white',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius)',
-                      boxShadow: 'var(--shadow-lg)',
-                      minWidth: '150px',
-                      zIndex: 1000,
-                      marginTop: '0.5rem'
-                    }}
-
-                  >
-                    <div style={{ padding: '0.5rem 0' }}>
-                      <div style={{
-                        padding: '0.75rem 1rem',
-                        borderBottom: '1px solid var(--border)',
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        color: 'var(--text-primary)'
-                      }}>
-                        {user.name}
-                      </div>
-                      
-                      <button
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          // Navigate to profile page (you can implement this later)
-                          console.log('Profile clicked');
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '0.75rem 1rem',
-                          background: 'none',
-                          border: 'none',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          fontSize: '0.9rem',
-                          color: 'var(--text-primary)',
-                          transition: 'background-color 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--bg-secondary)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'none';
-                        }}
-                      >
-                        👤 Profile
-                      </button>
-                      
-                      <button
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          logout();
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '0.75rem 1rem',
-                          background: 'none',
-                          border: 'none',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          fontSize: '0.9rem',
-                          color: 'var(--error)',
-                          transition: 'background-color 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--bg-secondary)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'none';
-                        }}
-                      >
-                        🚪 Logout
-                      </button>
+                  <div className="user-dropdown-menu">
+                    <div className="user-dropdown-header">
+                      {user.name}
                     </div>
+                    
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        // Navigate to profile page (you can implement this later)
+                        console.log('Profile clicked');
+                      }}
+                      className="user-dropdown-item"
+                    >
+                      👤 Profile
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        logout();
+                      }}
+                      className="user-dropdown-item user-dropdown-item-danger"
+                    >
+                      🚪 Logout
+                    </button>
                   </div>
                 )}
               </div>

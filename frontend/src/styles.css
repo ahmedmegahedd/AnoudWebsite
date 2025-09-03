@@ -95,6 +95,55 @@ body {
   text-align: right;
 }
 
+/* Ensure centered text remains centered in RTL */
+[dir="rtl"] .text-center,
+[dir="rtl"] [class*="text-center"],
+[dir="rtl"] .hero-content,
+[dir="rtl"] .section-header,
+[dir="rtl"] .card-header,
+[dir="rtl"] .form-header,
+[dir="rtl"] .modal-header,
+[dir="rtl"] .mobile-menu-header {
+  text-align: center !important;
+}
+
+[dir="rtl"] .mobile-brand {
+  justify-content: center;
+}
+
+/* RTL mobile menu improvements */
+[dir="rtl"] .mobile-nav-link {
+  text-align: right;
+}
+
+[dir="rtl"] .mobile-user-info {
+  text-align: right;
+}
+
+[dir="rtl"] .mobile-section-title {
+  text-align: center;
+}
+
+[dir="rtl"] .mobile-social-icons {
+  justify-content: center;
+}
+
+/* RTL support for user dropdown */
+[dir="rtl"] .user-dropdown-menu {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .user-dropdown-item {
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  [dir="rtl"] .user-dropdown-item {
+    text-align: center;
+  }
+}
+
 /* Animations */
 @keyframes pulse {
   0%, 100% {
@@ -159,6 +208,25 @@ body {
   text-align: left;
 }
 
+/* Additional RTL centering fixes */
+[dir="rtl"] .hero-title,
+[dir="rtl"] .hero-subtitle,
+[dir="rtl"] .section-title,
+[dir="rtl"] .card-title,
+[dir="rtl"] .form-title,
+[dir="rtl"] .modal-title,
+[dir="rtl"] .stats-title,
+[dir="rtl"] .features-title,
+[dir="rtl"] .cta-title,
+[dir="rtl"] .contact-title,
+[dir="rtl"] .about-title,
+[dir="rtl"] .job-title,
+[dir="rtl"] .company-title,
+[dir="rtl"] .admin-title,
+[dir="rtl"] .mobile-brand-text {
+  text-align: center !important;
+}
+
 [dir="rtl"] .ml-auto {
   margin-left: 0;
   margin-right: auto;
@@ -180,6 +248,72 @@ body {
 
 [dir="rtl"] .field-error {
   text-align: right;
+}
+
+/* RTL form improvements */
+[dir="rtl"] .form-group label {
+  text-align: right;
+}
+
+[dir="rtl"] .form-input {
+  text-align: right;
+}
+
+[dir="rtl"] .form-textarea {
+  text-align: right;
+}
+
+[dir="rtl"] .form-select {
+  text-align: right;
+}
+
+/* RTL button improvements */
+[dir="rtl"] .btn {
+  text-align: center;
+}
+
+[dir="rtl"] .btn-group {
+  flex-direction: row-reverse;
+}
+
+/* RTL navigation improvements */
+[dir="rtl"] .nav-brand {
+  text-align: center;
+}
+
+[dir="rtl"] .nav-content {
+  flex-direction: row-reverse;
+}
+
+/* RTL hero section improvements */
+[dir="rtl"] .hero-content {
+  text-align: center;
+}
+
+[dir="rtl"] .hero-overlay {
+  text-align: center;
+}
+
+/* RTL section improvements */
+[dir="rtl"] .section-header {
+  text-align: center;
+}
+
+[dir="rtl"] .section-content {
+  text-align: right;
+}
+
+/* RTL card improvements */
+[dir="rtl"] .card-header {
+  text-align: center;
+}
+
+[dir="rtl"] .card-body {
+  text-align: right;
+}
+
+[dir="rtl"] .card-footer {
+  text-align: center;
 }
 
 [dir="rtl"] .table th,
@@ -3431,6 +3565,98 @@ body {
 [dir="rtl"] .markdown-content ol {
   padding-right: 1.5rem;
   padding-left: 0;
+}
+
+/* User Dropdown Menu Styles */
+.user-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  min-width: 180px;
+  z-index: 1000;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.user-dropdown-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--background-secondary);
+}
+
+.user-dropdown-item {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+  display: block;
+}
+
+.user-dropdown-item:hover {
+  background: var(--background-secondary);
+}
+
+.user-dropdown-item-danger {
+  color: var(--error);
+}
+
+.user-dropdown-item-danger:hover {
+  background: var(--error);
+  color: white;
+}
+
+/* Mobile-specific dropdown positioning */
+@media (max-width: 768px) {
+  .user-dropdown-menu {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border: none;
+    border-top: 1px solid var(--border);
+    max-height: 50vh;
+    overflow-y: auto;
+    transform: translateY(0);
+    animation: slideUp 0.3s ease;
+  }
+  
+  .user-dropdown-header {
+    text-align: center;
+    background: var(--primary);
+    color: white;
+    border-bottom: none;
+  }
+  
+  .user-dropdown-item {
+    text-align: center;
+    padding: 1rem;
+    font-size: 1rem;
+  }
+}
+
+/* Dropdown animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 } 
 
 /* Bulk Download Styles */
