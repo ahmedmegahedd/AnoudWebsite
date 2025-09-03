@@ -912,7 +912,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
@@ -920,6 +920,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--spacing-md);
 }
 
 .mobile-menu-overlay.open {
@@ -929,14 +930,15 @@ body {
 
 .mobile-menu-content {
   background: white;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   padding: var(--spacing-xl);
-  max-width: 90vw;
+  max-width: 95vw;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
   transform: translateY(20px);
   transition: transform 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .mobile-menu-overlay.open .mobile-menu-content {
@@ -947,16 +949,26 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 2px solid var(--border);
 }
 
-.mobile-menu-header h3 {
-  margin: 0;
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.mobile-logo {
+  font-size: var(--font-size-2xl);
+}
+
+.mobile-brand-text {
   font-size: var(--font-size-xl);
-  font-weight: 600;
-  color: var(--text);
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
 }
 
 .mobile-menu-close {
@@ -975,27 +987,58 @@ body {
   color: var(--text);
 }
 
+.mobile-nav-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.mobile-section-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 var(--spacing-md) 0;
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--border);
+}
+
 .mobile-nav-links {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
 }
 
 .mobile-nav-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
   padding: var(--spacing-md);
   text-decoration: none;
   color: var(--text);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   font-weight: 500;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   transition: all 0.2s ease;
   background: var(--background-secondary);
   border: none;
   cursor: pointer;
   text-align: left;
   width: 100%;
+}
+
+.mobile-nav-icon {
+  font-size: var(--font-size-lg);
+  min-width: 24px;
+  text-align: center;
+}
+
+.admin-link {
+  background: var(--primary);
+  color: white;
+}
+
+.admin-link:hover {
+  background: var(--primary-dark);
 }
 
 .mobile-nav-link:hover {
@@ -1014,17 +1057,36 @@ body {
 }
 
 .mobile-user-section {
-  padding: var(--spacing-md);
-  background: var(--background-secondary);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
 }
 
 .mobile-user-info {
   display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--background-secondary);
+  border-radius: var(--radius-lg);
+}
+
+.mobile-user-avatar {
+  width: 48px;
+  height: 48px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+}
+
+.mobile-user-details {
+  display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-sm);
 }
 
 .mobile-user-name {
@@ -1040,12 +1102,27 @@ body {
 }
 
 .mobile-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  padding: var(--spacing-md);
   background: var(--error);
   color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .mobile-logout-btn:hover {
   background: #dc2626;
+}
+
+.mobile-social-section {
+  margin-bottom: var(--spacing-lg);
 }
 
 .mobile-social-icons {
@@ -1053,26 +1130,27 @@ body {
   justify-content: center;
   gap: var(--spacing-md);
   padding-top: var(--spacing-md);
-  border-top: 1px solid var(--border);
 }
 
 .mobile-social-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   background: var(--background-secondary);
   color: var(--text);
   border-radius: 50%;
   transition: all 0.2s ease;
   text-decoration: none;
+  border: 2px solid transparent;
 }
 
 .mobile-social-icon:hover {
   background: var(--background-secondary);
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary);
 }
 
 /* Navigation Styles */
@@ -3658,11 +3736,8 @@ body {
   }
 } 
 
-/* Job Domain Display Styles */
-.job-domain-display {
-  margin-top: 2rem;
-  border: 2px solid var(--primary);
-}
+/* Job Domain Display Styles - REMOVED */
+/* Domain extensions are no longer displayed to users */
 
 .domain-options {
   display: flex;

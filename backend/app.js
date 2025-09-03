@@ -15,6 +15,7 @@ const corsOptions = {
     
     const allowedOrigins = [
       'https://www.anoudjob.com',
+      'https://anoudjob.com',
       'http://localhost:3000',
       'http://localhost:3001',
       'http://127.0.0.1:3000',
@@ -30,7 +31,7 @@ const corsOptions = {
   },
   credentials: true,
   optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 

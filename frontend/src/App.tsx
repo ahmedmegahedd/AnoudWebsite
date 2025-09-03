@@ -6,7 +6,7 @@ import { JobProvider } from './context/JobContext';
 import { CompanyProvider } from './context/CompanyContext';
 import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import LoginModal from './components/LoginModal';
+
 import LanguageSwitcher from './components/LanguageSwitcher';
 import WhatsAppFloat from './components/WhatsAppFloat';
 import Home from './pages/Home';
@@ -25,7 +25,7 @@ import UserManagement from './pages/UserManagement';
 import { initializeLanguage } from './i18n';
 
 const AppContent: React.FC = () => {
-  const [showLogin, setShowLogin] = useState(false);
+
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { user, logout } = useAuth();
@@ -347,134 +347,144 @@ const AppContent: React.FC = () => {
                   </div>
                 )}
               </div>
-            ) : (
-              <button onClick={() => setShowLogin(true)} className="btn btn-primary btn-small">
-                {t('nav.login')}
-              </button>
-            )}
+            ) : null}
           </div>
         </div>
         
         {/* Mobile Menu Overlay */}
         <div className={`mobile-menu-overlay ${showMobileMenu ? 'open' : ''}`}>
           <div className="mobile-menu-content">
+            {/* Header with Logo and Close */}
             <div className="mobile-menu-header">
-              <h3>Menu</h3>
+              <div className="mobile-brand">
+                <span className="mobile-logo">🚀</span>
+                <span className="mobile-brand-text">Anoud Jobs</span>
+              </div>
               <button 
                 className="mobile-menu-close"
                 onClick={() => setShowMobileMenu(false)}
                 aria-label="Close mobile menu"
               >
-                ×
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
               </button>
             </div>
             
-            <div className="mobile-nav-links">
-              <Link 
-                to="/" 
-                className="mobile-nav-link"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                {t('nav.home')}
-              </Link>
-              
-              <Link 
-                to="/jobs" 
-                className="mobile-nav-link"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                {t('nav.jobs')}
-              </Link>
-              
-              {/* Show About Us link for non-admin/superadmin users and non-logged-in visitors */}
-              {(!user || (user.role !== 'admin' && user.role !== 'superadmin')) && (
+            {/* Main Navigation */}
+            <div className="mobile-nav-section">
+              <h4 className="mobile-section-title">Navigation</h4>
+              <div className="mobile-nav-links">
                 <Link 
-                  to="/about-us" 
+                  to="/" 
                   className="mobile-nav-link"
                   onClick={() => setShowMobileMenu(false)}
                 >
-                  {t('nav.about')}
+                  <span className="mobile-nav-icon">🏠</span>
+                  <span>{t('nav.home')}</span>
                 </Link>
-              )}
-              
-              {/* Admin Panel for admin users */}
-              {(user?.role === 'admin' || user?.role === 'superadmin') && (
+                
                 <Link 
-                  to="/admin" 
+                  to="/jobs" 
                   className="mobile-nav-link"
                   onClick={() => setShowMobileMenu(false)}
                 >
-                  Admin Panel
+                  <span className="mobile-nav-icon">💼</span>
+                  <span>{t('nav.jobs')}</span>
                 </Link>
-              )}
-              
-              {/* User Authentication */}
-              {!user ? (
-                <button 
-                  className="mobile-nav-link mobile-login-btn"
-                  onClick={() => {
-                    setShowMobileMenu(false);
-                    setShowLogin(true);
-                  }}
-                >
-                  {t('nav.login')}
-                </button>
-              ) : (
-                <div className="mobile-user-section">
-                  <div className="mobile-user-info">
+                
+                {/* Show About Us link for non-admin/superadmin users and non-logged-in visitors */}
+                {(!user || (user.role !== 'admin' && user.role !== 'superadmin')) && (
+                  <Link 
+                    to="/about-us" 
+                    className="mobile-nav-link"
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    <span className="mobile-nav-icon">ℹ️</span>
+                    <span>{t('nav.about')}</span>
+                  </Link>
+                )}
+                
+                {/* Admin Panel for admin users */}
+                {(user?.role === 'admin' || user?.role === 'superadmin') && (
+                  <Link 
+                    to="/admin" 
+                    className="mobile-nav-link admin-link"
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    <span className="mobile-nav-icon">⚙️</span>
+                    <span>Admin Panel</span>
+                  </Link>
+                )}
+              </div>
+            </div>
+            
+            {/* User Section */}
+            {user && (
+              <div className="mobile-user-section">
+                <h4 className="mobile-section-title">Account</h4>
+                <div className="mobile-user-info">
+                  <div className="mobile-user-avatar">
+                    <span className="user-avatar-text">{user.name.charAt(0).toUpperCase()}</span>
+                  </div>
+                  <div className="mobile-user-details">
                     <span className="mobile-user-name">{user.name}</span>
                     <span className="mobile-user-role">{user.role}</span>
                   </div>
-                  <button 
-                    className="mobile-nav-link mobile-logout-btn"
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      logout();
-                    }}
-                  >
-                    {t('nav.logout')}
-                  </button>
                 </div>
-              )}
-            </div>
+                <button 
+                  className="mobile-logout-btn"
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    logout();
+                  }}
+                >
+                  <span className="mobile-nav-icon">🚪</span>
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
             
-            {/* Social Media in Mobile Menu */}
-            <div className="mobile-social-icons">
-              <a 
-                href="https://www.instagram.com/anoud_recruitment_services/?igsh=Y2w5dmhrYjh5MDEx" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="mobile-social-icon"
-                aria-label="Instagram"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#E4405F">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                </svg>
-              </a>
-              
-              <a 
-                href="https://www.facebook.com/Anoud.Recruitment.co" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="mobile-social-icon"
-                aria-label="Facebook"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#1877F2">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-              </a>
-              
-              <a 
-                href="https://www.linkedin.com/company/anoud-recruitment/?viewAsMember=true" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="mobile-social-icon"
-                aria-label="LinkedIn"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#0A66C2">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                </svg>
-              </a>
+            {/* Social Media */}
+            <div className="mobile-social-section">
+              <h4 className="mobile-section-title">Follow Us</h4>
+              <div className="mobile-social-icons">
+                <a 
+                  href="https://www.instagram.com/anoud_recruitment_services/?igsh=Y2w5dmhrYjh5MDEx" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="mobile-social-icon"
+                  aria-label="Instagram"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#E4405F">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </a>
+                
+                <a 
+                  href="https://www.facebook.com/Anoud.Recruitment.co" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="mobile-social-icon"
+                  aria-label="Facebook"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </a>
+                
+                <a 
+                  href="https://www.linkedin.com/company/anoud-recruitment/?viewAsMember=true" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="mobile-social-icon"
+                  aria-label="LinkedIn"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#0A66C2">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -488,7 +498,7 @@ const AppContent: React.FC = () => {
           <Route path="/jobs/:jobId" element={<JobDetailPage />} />
           <Route path="/about-us" element={<About />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/secure-access" element={<AdminLogin />} />
           <Route
             path="/admin"
             element={<ProtectedRoute requireAdmin={true}><AdminPage /></ProtectedRoute>}
@@ -524,10 +534,7 @@ const AppContent: React.FC = () => {
         </Routes>
       </main>
 
-      {/* Login Modal */}
-      {showLogin && (
-        <LoginModal onClose={() => setShowLogin(false)} />
-      )}
+
     </>
   );
 };

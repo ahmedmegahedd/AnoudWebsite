@@ -3,12 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useCompanies } from '../context/CompanyContext';
 import { useJobs } from '../context/JobContext';
 
+// API configuration
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3234';
+
 const AdminApplicants: React.FC = () => {
   const navigate = useNavigate();
   const { companies, loading: companiesLoading, error: companiesError } = useCompanies();
   const { jobs, loading: jobsLoading, error: jobsError } = useJobs();
   
   const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(new Set());
+  const [deletingJob, setDeletingJob] = useState<string | null>(null);
 
   const toggleCompanyExpansion = (companyId: string) => {
     const newExpanded = new Set(expandedCompanies);
@@ -22,6 +26,66 @@ const AdminApplicants: React.FC = () => {
 
   const getJobsByCompany = (companyId: string) => {
     return jobs.filter(job => job.company && job.company._id === companyId);
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    if (!window.confirm('Are you sure you want to delete this job? This will also delete all applications for this job. This action cannot be undone.')) {
+      return;
+    }
+
+    setDeletingJob(jobId);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/jobs/${jobId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete job');
+      }
+
+      // Refresh the page to update the data
+      window.location.reload();
+    } catch (err) {
+      console.error('Error deleting job:', err);
+      alert('Failed to delete job. Please try again.');
+    } finally {
+      setDeletingJob(null);
+    }
+  };
+
+  const handleDeleteAllApplicants = async (jobId: string) => {
+    if (!window.confirm('Are you sure you want to delete ALL applicants for this job? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeletingJob(jobId);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/applications/job/${jobId}/delete-all`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete applicants');
+      }
+
+      // Refresh the page to update the data
+      window.location.reload();
+    } catch (err) {
+      console.error('Error deleting applicants:', err);
+      alert('Failed to delete applicants. Please try again.');
+    } finally {
+      setDeletingJob(null);
+    }
   };
 
   if (companiesLoading || jobsLoading) {
@@ -67,6 +131,43 @@ const AdminApplicants: React.FC = () => {
             ← Back to Admin Page
           </button>
           <h1>Applicants Management</h1>
+        </div>
+      </div>
+
+      {/* Summary Section */}
+      <div style={{ 
+        border: '1px solid var(--border)', 
+        borderRadius: 'var(--radius)',
+        padding: '1.5rem',
+        marginBottom: '2rem',
+        background: 'var(--bg-secondary)'
+      }}>
+        <h3 style={{ margin: '0 0 1rem 0', color: 'var(--text)' }}>📊 Applications Overview</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary)' }}>
+              {jobs.reduce((total, job) => total + (job.applicantCount || 0), 0)}
+            </div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              Total Applicants
+            </div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--success)' }}>
+              {jobs.filter(job => (job.applicantCount || 0) > 0).length}
+            </div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              Jobs with Applications
+            </div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--warning)' }}>
+              {jobs.length}
+            </div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              Total Jobs
+            </div>
+          </div>
         </div>
       </div>
 
@@ -147,21 +248,59 @@ const AdminApplicants: React.FC = () => {
                                     {job.location_en} • {job.type} • {job.salary_en}
                                   </div>
                                 </div>
-                                <button
-                                  onClick={() => navigate(`/admin/applicants/${job._id}`)}
-                                  style={{
-                                    background: 'var(--primary)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: 'var(--radius)',
-                                    padding: '0.5rem 1rem',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    fontWeight: 600
-                                  }}
-                                >
-                                  View All Applicants
-                                </button>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                  <button
+                                    onClick={() => navigate(`/admin/applicants/${job._id}`)}
+                                    style={{
+                                      background: 'var(--primary)',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: 'var(--radius)',
+                                      padding: '0.5rem 1rem',
+                                      cursor: 'pointer',
+                                      fontSize: '0.9rem',
+                                      fontWeight: 600
+                                    }}
+                                  >
+                                    View All Applicants
+                                  </button>
+                                  {(job.applicantCount || 0) > 0 && (
+                                    <button
+                                      onClick={() => handleDeleteAllApplicants(job._id)}
+                                      disabled={deletingJob === job._id}
+                                      style={{
+                                        background: 'var(--error)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: 'var(--radius)',
+                                        padding: '0.5rem 1rem',
+                                        cursor: deletingJob === job._id ? 'not-allowed' : 'pointer',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 600,
+                                        opacity: deletingJob === job._id ? 0.6 : 1
+                                      }}
+                                    >
+                                      {deletingJob === job._id ? 'Deleting...' : '🗑️ Delete All Applicants'}
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => handleDeleteJob(job._id)}
+                                    disabled={deletingJob === job._id}
+                                    style={{
+                                      background: 'var(--warning)',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: 'var(--radius)',
+                                      padding: '0.5rem 1rem',
+                                      cursor: deletingJob === job._id ? 'not-allowed' : 'pointer',
+                                      fontSize: '0.75rem',
+                                      fontWeight: 600,
+                                      opacity: deletingJob === job._id ? 0.6 : 1
+                                    }}
+                                  >
+                                    {deletingJob === job._id ? 'Deleting...' : '🗑️ Delete Job'}
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -254,21 +393,59 @@ const AdminApplicants: React.FC = () => {
                                     {job.location_en} • {job.type} • {job.salary_en}
                                   </div>
                                 </div>
-                                <button
-                                  onClick={() => navigate(`/admin/applicants/${job._id}`)}
-                                  style={{
-                                    background: 'var(--primary)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: 'var(--radius)',
-                                    padding: '0.5rem 1rem',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    fontWeight: 600
-                                  }}
-                                >
-                                  View All Applicants
-                                </button>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                  <button
+                                    onClick={() => navigate(`/admin/applicants/${job._id}`)}
+                                    style={{
+                                      background: 'var(--primary)',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: 'var(--radius)',
+                                      padding: '0.5rem 1rem',
+                                      cursor: 'pointer',
+                                      fontSize: '0.9rem',
+                                      fontWeight: 600
+                                    }}
+                                  >
+                                    View All Applicants
+                                  </button>
+                                  {(job.applicantCount || 0) > 0 && (
+                                    <button
+                                      onClick={() => handleDeleteAllApplicants(job._id)}
+                                      disabled={deletingJob === job._id}
+                                      style={{
+                                        background: 'var(--error)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: 'var(--radius)',
+                                        padding: '0.5rem 1rem',
+                                        cursor: deletingJob === job._id ? 'not-allowed' : 'pointer',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 600,
+                                        opacity: deletingJob === job._id ? 0.6 : 1
+                                      }}
+                                    >
+                                      {deletingJob === job._id ? 'Deleting...' : '🗑️ Delete All Applicants'}
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => handleDeleteJob(job._id)}
+                                    disabled={deletingJob === job._id}
+                                    style={{
+                                      background: 'var(--warning)',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: 'var(--radius)',
+                                      padding: '0.5rem 1rem',
+                                      cursor: deletingJob === job._id ? 'not-allowed' : 'pointer',
+                                      fontSize: '0.75rem',
+                                      fontWeight: 600,
+                                      opacity: deletingJob === job._id ? 0.6 : 1
+                                    }}
+                                  >
+                                    {deletingJob === job._id ? 'Deleting...' : '🗑️ Delete Job'}
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ))}

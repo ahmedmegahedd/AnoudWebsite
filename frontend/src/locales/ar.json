@@ -162,6 +162,8 @@
     "professionalDomain": "النطاق المهني",
     "locationDomain": "نطاق الموقع",
     "urlPath": "مسار الرابط",
+    "categoryDomain": "نطاق الفئة",
+    "seniorityDomain": "نطاق الخبرة",
     "copy": "نسخ",
     "view": "عرض",
     "qrCode": "رمز QR لـ",

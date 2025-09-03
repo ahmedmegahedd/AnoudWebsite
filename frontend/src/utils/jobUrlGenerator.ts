@@ -14,19 +14,20 @@ export class JobURLGenerator {
   
   /**
    * Generate a unique subdomain for a job
-   * Format: job-{jobId}.anoudjob.com
+   * Format: job-{uniqueIdentifier}.anoudjob.com
    */
-  static generateSubdomain(jobId: string): string {
-    return `${this.SUBDOMAIN_PREFIX}-${jobId}.${this.BASE_DOMAIN}`;
+  static generateSubdomain(jobId: string, title: string): string {
+    const uniqueId = this.generateUniqueIdentifier(title, jobId);
+    return `${this.SUBDOMAIN_PREFIX}-${uniqueId}.${this.BASE_DOMAIN}`;
   }
   
   /**
    * Generate a unique URL path for a job
-   * Format: anoudjob.com/jobs/{jobId}/{slug}
+   * Format: anoudjob.com/jobs/{slug}
    */
   static generateURLPath(jobId: string, title: string): string {
     const slug = this.generateSlug(title);
-    return `https://${this.BASE_DOMAIN}/jobs/${jobId}/${slug}`;
+    return `https://${this.BASE_DOMAIN}/jobs/${slug}`;
   }
   
   /**
@@ -59,6 +60,66 @@ export class JobURLGenerator {
   }
   
   /**
+   * Generate a category-based domain
+   * Format: {category}-{jobTitle}.anoudjob.com
+   */
+  static generateCategoryDomain(jobId: string, title: string): string {
+    const cleanTitle = this.generateSlug(title);
+    const category = this.detectJobCategory(title);
+    return `${category}-${cleanTitle}.${this.BASE_DOMAIN}`;
+  }
+  
+  /**
+   * Generate a seniority-based domain
+   * Format: {seniority}-{jobTitle}.anoudjob.com
+   */
+  static generateSeniorityDomain(jobId: string, title: string, experience?: string): string {
+    const cleanTitle = this.generateSlug(title);
+    const seniority = this.detectSeniorityLevel(title, experience);
+    return `${seniority}-${cleanTitle}.${this.BASE_DOMAIN}`;
+  }
+  
+  /**
+   * Detect job category based on title
+   */
+  private static detectJobCategory(title: string): string {
+    const lowerTitle = title.toLowerCase();
+    
+    if (lowerTitle.includes('engineer') || lowerTitle.includes('مهندس')) return 'engineering';
+    if (lowerTitle.includes('technician') || lowerTitle.includes('فني')) return 'technical';
+    if (lowerTitle.includes('sales') || lowerTitle.includes('مبيعات')) return 'sales';
+    if (lowerTitle.includes('medical') || lowerTitle.includes('طبي')) return 'medical';
+    if (lowerTitle.includes('agricultural') || lowerTitle.includes('زراعي')) return 'agriculture';
+    if (lowerTitle.includes('electrical') || lowerTitle.includes('كهربائي')) return 'electrical';
+    if (lowerTitle.includes('civil') || lowerTitle.includes('مدني')) return 'civil';
+    if (lowerTitle.includes('biomedical') || lowerTitle.includes('حيوي')) return 'biomedical';
+    
+    return 'general';
+  }
+  
+  /**
+   * Detect seniority level based on title and experience
+   */
+  private static detectSeniorityLevel(title: string, experience?: string): string {
+    const lowerTitle = title.toLowerCase();
+    
+    if (lowerTitle.includes('senior') || lowerTitle.includes('كبير')) return 'senior';
+    if (lowerTitle.includes('lead') || lowerTitle.includes('قائد')) return 'lead';
+    if (lowerTitle.includes('principal') || lowerTitle.includes('رئيسي')) return 'principal';
+    if (lowerTitle.includes('junior') || lowerTitle.includes('مبتدئ')) return 'junior';
+    
+    // Check experience requirements
+    if (experience) {
+      const expNum = parseInt(experience);
+      if (expNum >= 8) return 'senior';
+      if (expNum >= 5) return 'mid';
+      if (expNum >= 2) return 'junior';
+    }
+    
+    return 'mid';
+  }
+  
+  /**
    * Generate a unique slug from text
    */
   private static generateSlug(text: string): string {
@@ -72,6 +133,21 @@ export class JobURLGenerator {
   }
   
   /**
+   * Generate a unique identifier to ensure domain uniqueness
+   * Creates a short, readable identifier from job title
+   */
+  private static generateUniqueIdentifier(title: string, jobId: string): string {
+    const words = title.toLowerCase().split(' ').filter(word => word.length > 2);
+    const shortWords = words.slice(0, 3).map(word => word.substring(0, 4));
+    const identifier = shortWords.join('-');
+    
+    // Add first 4 characters of job ID to ensure uniqueness
+    const uniqueSuffix = jobId.substring(0, 4);
+    
+    return `${identifier}-${uniqueSuffix}`;
+  }
+  
+  /**
    * Get all possible domain variations for a job
    */
   static getAllDomainVariations(config: JobURLConfig): {
@@ -80,13 +156,17 @@ export class JobURLGenerator {
     customDomain: string;
     professionalDomain: string;
     locationDomain: string;
+    categoryDomain: string;
+    seniorityDomain: string;
   } {
     return {
-      subdomain: this.generateSubdomain(config.jobId),
+      subdomain: this.generateSubdomain(config.jobId, config.title),
       urlPath: this.generateURLPath(config.jobId, config.title),
       customDomain: this.generateCustomDomain(config.jobId, config.title),
       professionalDomain: this.generateProfessionalDomain(config.jobId, config.title, config.company),
       locationDomain: this.generateLocationDomain(config.jobId, config.title, config.location),
+      categoryDomain: this.generateCategoryDomain(config.jobId, config.title),
+      seniorityDomain: this.generateSeniorityDomain(config.jobId, config.title),
     };
   }
   

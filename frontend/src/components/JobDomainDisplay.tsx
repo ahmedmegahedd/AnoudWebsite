@@ -57,7 +57,7 @@ const JobDomainDisplay: React.FC<JobDomainDisplayProps> = ({ job }) => {
   };
 
   return (
-    <div className="job-domain-display card">
+    <div className="job-domain-display card" style={{ display: 'block' }}>
       <div className="card-body">
         <h3 className="headline-small mb-lg">
           {t('jobDomain.title', 'Job Domain Extensions')}
@@ -192,6 +192,60 @@ const JobDomainDisplay: React.FC<JobDomainDisplayProps> = ({ job }) => {
               </button>
               <button
                 onClick={() => handleDomainClick(domains.urlPath, 'url')}
+                className="btn btn-primary btn-small"
+              >
+                {t('jobDomain.view', 'View')}
+              </button>
+            </div>
+          </div>
+
+          {/* Category Domain Option */}
+          <div className="domain-option">
+            <label className="domain-label">
+              {t('jobDomain.categoryDomain', 'Category Domain')}
+            </label>
+            <div className="domain-input-group">
+              <input
+                type="text"
+                value={domains.categoryDomain}
+                readOnly
+                className="domain-input"
+              />
+              <button
+                onClick={() => copyToClipboard(domains.categoryDomain)}
+                className="btn btn-secondary btn-small"
+              >
+                {t('jobDomain.copy', 'Copy')}
+              </button>
+              <button
+                onClick={() => handleDomainClick(domains.categoryDomain, 'category')}
+                className="btn btn-primary btn-small"
+              >
+                {t('jobDomain.view', 'View')}
+              </button>
+            </div>
+          </div>
+
+          {/* Seniority Domain Option */}
+          <div className="domain-option">
+            <label className="domain-label">
+              {t('jobDomain.seniorityDomain', 'Seniority Domain')}
+            </label>
+            <div className="domain-input-group">
+              <input
+                type="text"
+                value={domains.seniorityDomain}
+                readOnly
+                className="domain-input"
+              />
+              <button
+                onClick={() => copyToClipboard(domains.seniorityDomain)}
+                className="btn btn-secondary btn-small"
+              >
+                {t('jobDomain.copy', 'Copy')}
+              </button>
+              <button
+                onClick={() => handleDomainClick(domains.seniorityDomain, 'seniority')}
                 className="btn btn-primary btn-small"
               >
                 {t('jobDomain.view', 'View')}

@@ -3,7 +3,7 @@ const isDevelopment = process.env.NODE_ENV === 'development' || window.location.
 
 export const API_BASE_URL = isDevelopment 
   ? 'http://localhost:3234/api'  // Local development
-  : 'https://www.anoudjob.com/api'; // Production
+  : `${window.location.protocol}//${window.location.host}/api`; // Production - uses current domain
 
 if (isDevelopment) {
   console.log('🔧 Development mode - using local API:', API_BASE_URL);

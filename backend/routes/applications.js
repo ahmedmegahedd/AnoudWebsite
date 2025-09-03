@@ -33,6 +33,11 @@ router.get('/counts', adminAuth, async (req, res) => {
   try {
     const counts = await Application.aggregate([
       {
+        $match: {
+          job: { $ne: null } // Only count applications with valid job IDs
+        }
+      },
+      {
         $group: {
           _id: '$job',
           count: { $sum: 1 }
@@ -42,13 +47,143 @@ router.get('/counts', adminAuth, async (req, res) => {
     
     // Convert to object with job ID as key and count as value
     const countsMap = counts.reduce((acc, item) => {
-      acc[item._id.toString()] = item.count;
+      if (item._id) {
+        acc[item._id.toString()] = item.count;
+      }
       return acc;
     }, {});
     
     res.json(countsMap);
   } catch (err) {
     console.error('Error fetching application counts:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Public endpoint for applicant counts (no authentication required)
+router.get('/counts/public', async (req, res) => {
+  try {
+    const counts = await Application.aggregate([
+      {
+        $match: {
+          job: { $ne: null } // Only count applications with valid job IDs
+        }
+      },
+      {
+        $group: {
+          _id: '$job',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    // Convert to object with job ID as key and count as value
+    const countsMap = counts.reduce((acc, item) => {
+      if (item._id) {
+        acc[item._id.toString()] = item.count;
+      }
+      return acc;
+    }, {});
+    
+    res.json(countsMap);
+  } catch (err) {
+    console.error('Error fetching public application counts:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete all applicants for a specific job (admin only)
+router.delete('/job/:jobId/delete-all', adminAuth, async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    
+    // Validate job ID
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ error: 'Invalid job ID' });
+    }
+    
+    // Check if job exists
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+    
+    // Delete all applications for this job
+    const result = await Application.deleteMany({ job: jobId });
+    
+    console.log(`Deleted ${result.deletedCount} applications for job: ${job.title_en}`);
+    
+    res.json({ 
+      message: `Successfully deleted ${result.deletedCount} applications for this job`,
+      deletedCount: result.deletedCount
+    });
+  } catch (err) {
+    console.error('Error deleting applications for job:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete specific applications by IDs (admin only)
+router.delete('/bulk-delete', adminAuth, async (req, res) => {
+  try {
+    const { applicationIds } = req.body;
+    
+    if (!Array.isArray(applicationIds) || applicationIds.length === 0) {
+      return res.status(400).json({ error: 'Application IDs array is required' });
+    }
+    
+    // Validate all IDs are valid ObjectIds
+    const validIds = applicationIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+    if (validIds.length !== applicationIds.length) {
+      return res.status(400).json({ error: 'Some application IDs are invalid' });
+    }
+    
+    // Delete the specified applications
+    const result = await Application.deleteMany({ _id: { $in: validIds } });
+    
+    console.log(`Deleted ${result.deletedCount} applications`);
+    
+    res.json({ 
+      message: `Successfully deleted ${result.deletedCount} applications`,
+      deletedCount: result.deletedCount
+    });
+  } catch (err) {
+    console.error('Error bulk deleting applications:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete a single application by ID (admin only)
+router.delete('/:applicationId', adminAuth, async (req, res) => {
+  try {
+    const { applicationId } = req.params;
+    
+    // Validate application ID
+    if (!mongoose.Types.ObjectId.isValid(applicationId)) {
+      return res.status(400).json({ error: 'Invalid application ID' });
+    }
+    
+    // Check if application exists
+    const application = await Application.findById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+    
+    // Delete the application
+    await Application.findByIdAndDelete(applicationId);
+    
+    console.log(`Deleted application: ${application.name} for job: ${application.job}`);
+    
+    res.json({ 
+      message: 'Application deleted successfully',
+      deletedApplication: {
+        id: applicationId,
+        name: application.name,
+        job: application.job
+      }
+    });
+  } catch (err) {
+    console.error('Error deleting application:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

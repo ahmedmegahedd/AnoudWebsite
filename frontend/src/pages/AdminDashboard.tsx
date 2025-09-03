@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useJobs } from '../context/JobContext';
 import JobForm from '../components/JobForm';
 import CVUpload from '../components/CVUpload';
+import JobDomainManager from '../components/JobDomainManager';
 import { Job } from '../components/JobList'; // Import Job interface from JobList
 
 const AdminDashboard: React.FC = () => {
@@ -15,6 +16,7 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showJobForm, setShowJobForm] = useState(false);
   const [showCVUpload, setShowCVUpload] = useState(false);
+  const [showDomainManager, setShowDomainManager] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -241,6 +243,31 @@ const AdminDashboard: React.FC = () => {
                 </p>
               </div>
             </div>
+
+            <div className="card" onClick={() => setShowDomainManager(true)}>
+              <div className="card-body text-center">
+                <div className="mb-lg">
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    background: 'var(--success)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto',
+                    fontSize: '24px',
+                    color: 'white'
+                  }}>
+                    🌐
+                  </div>
+                </div>
+                <h3 className="headline-small mb-md">Domain Manager</h3>
+                <p className="body-medium text-secondary">
+                  Manage unique domain extensions for all jobs
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -423,6 +450,60 @@ const AdminDashboard: React.FC = () => {
             </div>
             <div style={{ flex: 1, overflow: 'auto' }}>
               <CVUpload onUsersCreated={handleUsersCreated} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Domain Manager Modal */}
+      {showDomainManager && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 'var(--radius-lg)',
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+            width: '100%',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '1.5rem',
+              borderBottom: '1px solid var(--border)'
+            }}>
+              <h2 style={{ margin: 0 }}>🌐 Job Domain Manager</h2>
+              <button
+                onClick={() => setShowDomainManager(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  color: 'var(--text-secondary)',
+                  padding: '0.25rem'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ flex: 1, overflow: 'auto' }}>
+              <JobDomainManager jobs={jobs} />
             </div>
           </div>
         </div>

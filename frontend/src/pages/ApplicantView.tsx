@@ -62,6 +62,9 @@ const ApplicantView: React.FC = () => {
   const [selectedApplicants, setSelectedApplicants] = useState<string[]>([]);
   const [downloading, setDownloading] = useState(false);
   const [exporting, setExporting] = useState(false);
+  
+  // Delete state
+  const [deletingApplication, setDeletingApplication] = useState<string | null>(null);
 
   useEffect(() => {
     fetchJobAndApplications();
@@ -391,6 +394,83 @@ const ApplicantView: React.FC = () => {
     setShowNotesModal(true);
   };
 
+  const handleDeleteApplication = async (applicationId: string) => {
+    if (!window.confirm('Are you sure you want to delete this applicant? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeletingApplication(applicationId);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/${applicationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete application');
+      }
+
+      // Remove the application from local state
+      setApplications(prev => prev.filter(app => app._id !== applicationId));
+      
+      // Also remove from selected applicants if it was selected
+      setSelectedApplicants(prev => prev.filter(id => id !== applicationId));
+      
+      console.log('Application deleted successfully');
+    } catch (err) {
+      console.error('Error deleting application:', err);
+      alert(err instanceof Error ? err.message : 'Failed to delete application');
+    } finally {
+      setDeletingApplication(null);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete ${selectedApplicants.length} selected applicant(s)? This action cannot be undone.`)) {
+      return;
+    }
+
+    setDeletingApplication('bulk');
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/bulk-delete`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          applicationIds: selectedApplicants
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete applications');
+      }
+
+      const result = await response.json();
+      
+      // Remove the deleted applications from local state
+      setApplications(prev => prev.filter(app => !selectedApplicants.includes(app._id)));
+      
+      // Clear selected applicants
+      setSelectedApplicants([]);
+      
+      alert(`Successfully deleted ${result.deletedCount} applicant(s)`);
+      console.log('Bulk delete successful:', result);
+    } catch (err) {
+      console.error('Error bulk deleting applications:', err);
+      alert(err instanceof Error ? err.message : 'Failed to delete applications');
+    } finally {
+      setDeletingApplication(null);
+    }
+  };
+
   const downloadResume = (resumeFilename: string) => {
     window.open(`${API_BASE_URL}/uploads/${resumeFilename}`, '_blank');
   };
@@ -445,8 +525,8 @@ const ApplicantView: React.FC = () => {
   }
 
   const applicantsWithResumes = applications.filter(app => app.resume);
-  const allSelected = applicantsWithResumes.length > 0 && 
-    selectedApplicants.length === applicantsWithResumes.length;
+  const allSelected = applications.length > 0 && 
+    selectedApplicants.length === applications.length;
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
@@ -661,8 +741,7 @@ const ApplicantView: React.FC = () => {
                     type="checkbox"
                     checked={selectedApplicants.includes(application._id)}
                     onChange={() => handleSelectApplicant(application._id)}
-                    disabled={!application.resume}
-                    title={application.resume ? 'Select for bulk download' : 'No CV available'}
+                    title="Select for bulk operations (download, export, delete)"
                   />
                 </div>
 
@@ -731,6 +810,19 @@ const ApplicantView: React.FC = () => {
                         Download CV
                       </button>
                     )}
+                    
+                    <button
+                      onClick={() => handleDeleteApplication(application._id)}
+                      disabled={deletingApplication === application._id}
+                      className="action-btn delete"
+                      style={{
+                        background: 'var(--error)',
+                        color: 'white',
+                        opacity: deletingApplication === application._id ? 0.6 : 1
+                      }}
+                    >
+                      {deletingApplication === application._id ? 'Deleting...' : '🗑️ Delete'}
+                    </button>
                   </div>
 
                   {/* Status Dropdown */}
@@ -756,7 +848,7 @@ const ApplicantView: React.FC = () => {
       {applications.length > 0 && (
         <div className="bulk-download-section">
           <div className="bulk-download-header">
-            <h3>Bulk CV Download</h3>
+            <h3>Bulk Operations</h3>
             {selectedApplicants.length > 0 && (
               <span className="selected-count">
                 {selectedApplicants.length} applicant(s) selected
@@ -772,7 +864,7 @@ const ApplicantView: React.FC = () => {
                 onChange={handleSelectAll}
                 className="select-all-checkbox"
               />
-              <span>Select All ({applicantsWithResumes.length} with CVs)</span>
+              <span>Select All ({applications.length} total, {applicantsWithResumes.length} with CVs)</span>
             </label>
             
             <div className="bulk-actions">
@@ -782,7 +874,7 @@ const ApplicantView: React.FC = () => {
                   disabled={downloading}
                   className="download-selected-btn"
                 >
-                  {downloading ? 'Downloading...' : `Download Selected CVs (${selectedApplicants.length})`}
+                  {downloading ? 'Downloading...' : `Download Selected CVs (${selectedApplicants.filter(id => applications.find(app => app._id === id)?.resume).length})`}
                 </button>
               )}
               
@@ -793,6 +885,27 @@ const ApplicantView: React.FC = () => {
               >
                 {exporting ? 'Exporting...' : 'Export Applicants Data'}
               </button>
+              
+              {selectedApplicants.length > 0 && (
+                <button
+                  onClick={handleBulkDelete}
+                  disabled={deletingApplication !== null}
+                  className="bulk-delete-btn"
+                  style={{
+                    background: 'var(--error)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 'var(--radius)',
+                    padding: '0.5rem 1rem',
+                    cursor: deletingApplication !== null ? 'not-allowed' : 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    opacity: deletingApplication !== null ? 0.6 : 1
+                  }}
+                >
+                  {deletingApplication !== null ? 'Deleting...' : `🗑️ Delete Selected (${selectedApplicants.length})`}
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -100,7 +100,22 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
 
   const fetchApplicantCounts = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/counts`);
+      const token = localStorage.getItem('token');
+      let endpoint = `${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/counts`;
+      let headers = {};
+      
+      if (token) {
+        // Use authenticated endpoint if token is available
+        headers = {
+          'Authorization': `Bearer ${token}`
+        };
+      } else {
+        // Use public endpoint if no token
+        endpoint = `${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/counts/public`;
+        console.log('No token found, using public endpoint for applicant counts');
+      }
+      
+      const response = await fetch(endpoint, { headers });
       if (!response.ok) {
         throw new Error('Failed to fetch applicant counts');
       }

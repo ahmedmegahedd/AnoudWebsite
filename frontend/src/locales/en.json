@@ -162,6 +162,8 @@
     "professionalDomain": "Professional Domain",
     "locationDomain": "Location Domain",
     "urlPath": "URL Path",
+    "categoryDomain": "Category Domain",
+    "seniorityDomain": "Seniority Domain",
     "copy": "Copy",
     "view": "View",
     "qrCode": "QR Code for",

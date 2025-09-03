@@ -33,21 +33,16 @@ const corsOptions = {
   },
   credentials: true,
   optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 // HTTPS redirect middleware (production only)
 if (isProduction) {
   app.use((req, res, next) => {
-    // Check if request is HTTP and redirect to HTTPS
+    // Check if request is HTTP and redirect to HTTPS (preserve original domain)
     if (req.headers['x-forwarded-proto'] !== 'https' && req.headers['x-forwarded-proto'] !== 'https') {
-      return res.redirect(`https://www.anoudjob.com${req.url}`);
-    }
-    
-    // Ensure www subdomain
-    if (req.headers.host === 'anoudjob.com') {
-      return res.redirect(`https://www.anoudjob.com${req.url}`);
+      return res.redirect(`https://${req.headers.host}${req.url}`);
     }
     
     next();

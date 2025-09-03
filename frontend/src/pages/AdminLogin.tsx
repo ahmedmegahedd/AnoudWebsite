@@ -46,32 +46,32 @@ const AdminLogin: React.FC = () => {
   return (
     <div className="admin-login-container">
       <div className="admin-login-card">
-        <h1>Admin Login</h1>
-        <p>Sign in to access the admin panel</p>
+        <h1>🔐 Secure Access</h1>
+        <p>Authorized personnel only</p>
 
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="admin-login-form">
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Username</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder="Enter credentials"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Access Code</label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Enter access code"
               required
             />
           </div>
@@ -81,7 +81,7 @@ const AdminLogin: React.FC = () => {
             className="admin-login-submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Signing in...' : 'Sign In'}
+            {isSubmitting ? 'Verifying...' : 'Verify Access'}
           </button>
         </form>
       </div>
