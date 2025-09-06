@@ -33,19 +33,37 @@ async function testEndpoint(protocol, hostname, path) {
       });
       
       res.on('end', () => {
+        let parsedData = null;
+        let isJson = false;
+        
+        try {
+          if (data.length > 0) {
+            parsedData = JSON.parse(data);
+            isJson = true;
+          }
+        } catch (e) {
+          // Not JSON, probably HTML or other content
+          parsedData = data.substring(0, 200) + (data.length > 200 ? '...' : '');
+        }
+        
         const result = {
           url,
           status: res.statusCode,
           headers: res.headers,
-          data: data.length > 0 ? JSON.parse(data) : null,
+          data: parsedData,
+          isJson,
           success: res.statusCode >= 200 && res.statusCode < 300
         };
         
         if (result.success) {
-          console.log(`✅ ${res.statusCode} - ${path}`);
+          if (isJson) {
+            console.log(`✅ ${res.statusCode} - ${path} (JSON)`);
+          } else {
+            console.log(`⚠️  ${res.statusCode} - ${path} (HTML/Other - might be serving React app)`);
+          }
         } else {
           console.log(`❌ ${res.statusCode} - ${path}`);
-          console.log(`   Error: ${data}`);
+          console.log(`   Error: ${data.substring(0, 100)}...`);
         }
         
         resolve(result);

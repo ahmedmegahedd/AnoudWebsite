@@ -106,11 +106,16 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
       let endpoint = `${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/counts`;
       let headers = {};
       
+      console.log('🔍 Fetching applicant counts...');
+      console.log('Token available:', !!token);
+      console.log('API Base URL:', API_BASE_URL);
+      
       if (token) {
         // Use authenticated endpoint if token is available
         headers = {
           'Authorization': `Bearer ${token}`
         };
+        console.log('Using authenticated endpoint for applicant counts');
       } else {
         // Use public endpoint if no token
         endpoint = `${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/counts/public`;
@@ -118,11 +123,40 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
       }
       
       console.log(`Fetching applicant counts from: ${endpoint}`);
+      console.log('Headers:', headers);
       
       const response = await fetch(endpoint, { headers });
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
         console.error('Applicant counts fetch failed:', response.status, errorData);
+        
+        // If authenticated endpoint fails with 404, try public endpoint as fallback
+        if (response.status === 404 && token) {
+          console.log('🔄 Authenticated endpoint failed, trying public endpoint as fallback...');
+          const publicEndpoint = `${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/counts/public`;
+          const publicResponse = await fetch(publicEndpoint);
+          
+          if (publicResponse.ok) {
+            const publicCounts = await publicResponse.json();
+            console.log('✅ Fallback to public endpoint successful:', publicCounts);
+            
+            // Update jobs with applicant counts
+            setJobs(prevJobs => prevJobs.map(job => ({
+              ...job,
+              applicantCount: publicCounts[job._id] || 0
+            })));
+            
+            setFeaturedJobs(prevFeaturedJobs => prevFeaturedJobs.map(job => ({
+              ...job,
+              applicantCount: publicCounts[job._id] || 0
+            })));
+            return;
+          }
+        }
+        
         throw new Error(`Failed to fetch applicant counts (${response.status}): ${errorData.error || 'Unknown error'}`);
       }
       

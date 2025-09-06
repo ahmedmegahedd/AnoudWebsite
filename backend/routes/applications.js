@@ -31,6 +31,8 @@ router.get('/health', (req, res) => {
 // Get applicant count for all jobs (admin only)
 router.get('/counts', adminAuth, async (req, res) => {
   try {
+    console.log('📊 Fetching application counts for admin user:', req.user.email);
+    
     const counts = await Application.aggregate([
       {
         $match: {
@@ -45,6 +47,8 @@ router.get('/counts', adminAuth, async (req, res) => {
       }
     ]);
     
+    console.log('Raw counts from aggregation:', counts);
+    
     // Convert to object with job ID as key and count as value
     const countsMap = counts.reduce((acc, item) => {
       if (item._id) {
@@ -53,6 +57,7 @@ router.get('/counts', adminAuth, async (req, res) => {
       return acc;
     }, {});
     
+    console.log('Processed counts map:', countsMap);
     res.json(countsMap);
   } catch (err) {
     console.error('Error fetching application counts:', err);
@@ -63,6 +68,8 @@ router.get('/counts', adminAuth, async (req, res) => {
 // Public endpoint for applicant counts (no authentication required)
 router.get('/counts/public', async (req, res) => {
   try {
+    console.log('📊 Fetching public application counts');
+    
     const counts = await Application.aggregate([
       {
         $match: {
@@ -77,6 +84,8 @@ router.get('/counts/public', async (req, res) => {
       }
     ]);
     
+    console.log('Raw public counts from aggregation:', counts);
+    
     // Convert to object with job ID as key and count as value
     const countsMap = counts.reduce((acc, item) => {
       if (item._id) {
@@ -85,6 +94,7 @@ router.get('/counts/public', async (req, res) => {
       return acc;
     }, {});
     
+    console.log('Processed public counts map:', countsMap);
     res.json(countsMap);
   } catch (err) {
     console.error('Error fetching public application counts:', err);
