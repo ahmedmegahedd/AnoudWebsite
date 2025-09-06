@@ -17,7 +17,7 @@ PROJECT_NAME="anoudjob"
 BACKEND_DIR="backend"
 FRONTEND_DIR="frontend"
 WEB_DIR="/var/www/anoudjob"
-BACKEND_PORT=3000
+BACKEND_PORT=3234
 
 # Function to print colored output
 print_status() {

@@ -35,25 +35,25 @@ const Jobs: React.FC = () => {
       // Add the jobId to the form data
       formData.append('jobId', selectedJob!._id);
       
-      // Use the public route which doesn't require authentication
-      const apiUrl = `${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/public`;
+      // Use the main applications endpoint which handles file uploads
+      const apiUrl = `${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}`;
       console.log('Submitting application to:', apiUrl);
       console.log('API_BASE_URL:', API_BASE_URL);
       console.log('API_ENDPOINTS.APPLICATIONS:', API_ENDPOINTS.APPLICATIONS);
+      console.log('FormData contents:', {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        education: formData.get('education'),
+        selfIntro: formData.get('selfIntro'),
+        jobId: formData.get('jobId'),
+        resume: formData.get('resume') ? 'File present' : 'No file'
+      });
       
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.get('name'),
-          email: formData.get('email'),
-          phone: formData.get('phone'),
-          education: formData.get('education'),
-          selfIntro: formData.get('selfIntro'),
-          jobId: formData.get('jobId'),
-        }),
+        // Don't set Content-Type header - let browser set it with boundary for FormData
+        body: formData,
       });
 
       if (!response.ok) {

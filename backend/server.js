@@ -12,7 +12,7 @@ const cors = require('cors');
 
 // Environment configuration
 const isProduction = process.env.NODE_ENV === 'production';
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3234;
 
 // CORS configuration for production
 const corsOptions = {
@@ -21,20 +21,33 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     
     const allowedOrigins = isProduction 
-      ? ['https://www.anoudjob.com', 'https://anoudjob.com']
-      : ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
+      ? [
+          'https://www.anoudjob.com', 
+          'https://anoudjob.com',
+          'http://www.anoudjob.com',  // Allow HTTP for development/testing
+          'http://anoudjob.com'
+        ]
+      : [
+          'http://localhost:3000', 
+          'http://localhost:3001', 
+          'http://127.0.0.1:3000', 
+          'http://127.0.0.1:3001',
+          'http://localhost:3234',  // Add backend port for direct testing
+          'http://127.0.0.1:3234'
+        ];
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       console.log(`🚫 CORS blocked request from: ${origin}`);
+      console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 };
 
 // HTTPS redirect middleware (production only)
@@ -51,6 +64,13 @@ if (isProduction) {
 
 // Middleware
 app.use(cors(corsOptions));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Origin: ${req.headers.origin || 'none'}`);
+  next();
+});
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -77,8 +97,25 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    message: 'Anoud Job API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    port: PORT
+  });
+});
+
 // API routes
-app.use('/api', require('./routes'));
+app.use('/api/jobs', require('./routes/jobs'));
+app.use('/api/applications', require('./routes/applications'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/companies', require('./routes/companies'));
+app.use('/api/contact', require('./routes/contact'));
+app.use('/api/leads', require('./routes/leads'));
+app.use('/api/cv-upload', require('./routes/cvUpload'));
 
 // Serve static files from frontend build (production only)
 if (isProduction) {
@@ -167,16 +204,6 @@ const connectDB = async () => {
     process.exit(1);
   }
 };
-
-// Routes
-app.use('/api/jobs', require('./routes/jobs'));
-app.use('/api/applications', require('./routes/applications'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/companies', require('./routes/companies'));
-app.use('/api/contact', require('./routes/contact'));
-app.use('/api/leads', require('./routes/leads'));
-app.use('/api/cv-upload', require('./routes/cvUpload'));
 
 // 404 handler
 app.use('*', (req, res) => {
