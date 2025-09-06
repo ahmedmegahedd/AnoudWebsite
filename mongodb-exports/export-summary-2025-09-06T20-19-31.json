@@ -1,0 +1,12 @@
+{
+  "database": "Anoud",
+  "exportDate": "2025-09-06T20:19:31.956Z",
+  "collections": {
+    "Jobs": 3,
+    "Users": 2
+  },
+  "files": {
+    "jobs": "/Users/Megahed/AnoudWebsite/mongodb-exports/jobs-export-2025-09-06T20-19-31.json",
+    "users": "/Users/Megahed/AnoudWebsite/mongodb-exports/users-export-2025-09-06T20-19-31.json"
+  }
+}
