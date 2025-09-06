@@ -263,6 +263,12 @@ const ApplicantView: React.FC = () => {
   const handleStatusChange = async (applicationId: string, newStatus: Application['status']) => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      console.log(`🔄 Updating status for application ${applicationId} to ${newStatus}`);
+      
       const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/${applicationId}/status`, {
         method: 'PATCH',
         headers: {
@@ -273,8 +279,13 @@ const ApplicantView: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update status');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Status update failed:', response.status, errorData);
+        throw new Error(errorData.error || `Failed to update status (${response.status})`);
       }
+
+      const result = await response.json();
+      console.log('✅ Status updated successfully:', result);
 
       // Update the application in the local state
       setApplications(prev => 
@@ -286,13 +297,19 @@ const ApplicantView: React.FC = () => {
       );
     } catch (err) {
       console.error('Error updating status:', err);
-      alert('Failed to update status');
+      alert(`Failed to update status: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
   const handleToggleFlag = async (applicationId: string) => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      console.log(`🔄 Toggling flag for application ${applicationId}`);
+      
       const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/${applicationId}/flag`, {
         method: 'PATCH',
         headers: {
@@ -302,10 +319,13 @@ const ApplicantView: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to toggle flag');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Flag toggle failed:', response.status, errorData);
+        throw new Error(errorData.error || `Failed to toggle flag (${response.status})`);
       }
 
       const data = await response.json();
+      console.log('✅ Flag toggled successfully:', data);
 
       // Update the application in the local state
       setApplications(prev => 
@@ -317,13 +337,19 @@ const ApplicantView: React.FC = () => {
       );
     } catch (err) {
       console.error('Error toggling flag:', err);
-      alert('Failed to toggle flag');
+      alert(`Failed to toggle flag: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
   const handleToggleStar = async (applicationId: string) => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      console.log(`🔄 Toggling star for application ${applicationId}`);
+      
       const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/${applicationId}/star`, {
         method: 'PATCH',
         headers: {
@@ -333,10 +359,13 @@ const ApplicantView: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to toggle star');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Star toggle failed:', response.status, errorData);
+        throw new Error(errorData.error || `Failed to toggle star (${response.status})`);
       }
 
       const data = await response.json();
+      console.log('✅ Star toggled successfully:', data);
 
       // Update the application in the local state
       setApplications(prev => 
@@ -348,7 +377,7 @@ const ApplicantView: React.FC = () => {
       );
     } catch (err) {
       console.error('Error toggling star:', err);
-      alert('Failed to toggle star');
+      alert(`Failed to toggle star: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
@@ -357,6 +386,12 @@ const ApplicantView: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      console.log(`🔄 Updating notes for application ${selectedApplication._id}`);
+      
       const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS}/${selectedApplication._id}/notes`, {
         method: 'PATCH',
         headers: {
@@ -367,8 +402,13 @@ const ApplicantView: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update notes');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Notes update failed:', response.status, errorData);
+        throw new Error(errorData.error || `Failed to update notes (${response.status})`);
       }
+
+      const result = await response.json();
+      console.log('✅ Notes updated successfully:', result);
 
       // Update the application in the local state
       setApplications(prev => 
@@ -384,7 +424,7 @@ const ApplicantView: React.FC = () => {
       setNotesText('');
     } catch (err) {
       console.error('Error updating notes:', err);
-      alert('Failed to update notes');
+      alert(`Failed to update notes: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
@@ -472,7 +512,9 @@ const ApplicantView: React.FC = () => {
   };
 
   const downloadResume = (resumeFilename: string) => {
-    window.open(`${API_BASE_URL}/uploads/${resumeFilename}`, '_blank');
+    // Remove /api from the base URL for file downloads since uploads are served directly
+    const baseUrl = API_BASE_URL.replace('/api', '');
+    window.open(`${baseUrl}/uploads/${resumeFilename}`, '_blank');
   };
 
   const getStatusColor = (status: Application['status']) => {

@@ -117,11 +117,17 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
         console.log('No token found, using public endpoint for applicant counts');
       }
       
+      console.log(`Fetching applicant counts from: ${endpoint}`);
+      
       const response = await fetch(endpoint, { headers });
       if (!response.ok) {
-        throw new Error('Failed to fetch applicant counts');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Applicant counts fetch failed:', response.status, errorData);
+        throw new Error(`Failed to fetch applicant counts (${response.status}): ${errorData.error || 'Unknown error'}`);
       }
+      
       const counts = await response.json();
+      console.log('✅ Applicant counts fetched successfully:', counts);
       
       // Update jobs with applicant counts
       setJobs(prevJobs => prevJobs.map(job => ({
@@ -135,7 +141,8 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
       })));
     } catch (err) {
       console.error('Failed to fetch applicant counts:', err);
-      // Don't set error state for this as it's not critical
+      // Don't set error state for this as it's not critical, but log the error
+      console.warn('Applicant counts will not be displayed due to fetch error');
     }
   };
 

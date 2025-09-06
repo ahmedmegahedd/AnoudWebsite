@@ -25,7 +25,9 @@ const corsOptions = {
           'https://www.anoudjob.com', 
           'https://anoudjob.com',
           'http://www.anoudjob.com',  // Allow HTTP for development/testing
-          'http://anoudjob.com'
+          'http://anoudjob.com',
+          'https://anoudjob.com:443',  // Add explicit port
+          'http://anoudjob.com:80'     // Add explicit port
         ]
       : [
           'http://localhost:3000', 
@@ -67,7 +69,7 @@ app.use(cors(corsOptions));
 
 // Request logging middleware
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Origin: ${req.headers.origin || 'none'}`);
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Origin: ${req.headers.origin || 'none'} - User-Agent: ${req.headers['user-agent'] || 'none'}`);
   next();
 });
 
@@ -205,12 +207,14 @@ const connectDB = async () => {
   }
 };
 
-// 404 handler
-app.use('*', (req, res) => {
+// 404 handler (only for API routes, not for static files)
+app.use('/api/*', (req, res) => {
+  console.log(`🚫 404 - API route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ 
-    error: 'Route not found',
+    error: 'API route not found',
     path: req.originalUrl,
-    method: req.method
+    method: req.method,
+    timestamp: new Date().toISOString()
   });
 });
 
