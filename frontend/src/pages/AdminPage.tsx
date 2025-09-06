@@ -76,6 +76,30 @@ const AdminPage: React.FC = () => {
             }}>
               Welcome back, {user?.name}! Manage your recruitment platform from this central hub.
             </p>
+            <div style={{ marginTop: '1rem' }}>
+              <button
+                onClick={() => navigate('/admin/dashboard')}
+                style={{
+                  background: 'var(--primary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 'var(--radius)',
+                  padding: '0.5rem 1rem',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: '500',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '0.9';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                }}
+              >
+                📊 View Detailed Dashboard
+              </button>
+            </div>
           </div>
 
           {/* Admin Tools Grid */}

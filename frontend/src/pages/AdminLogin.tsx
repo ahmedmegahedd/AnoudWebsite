@@ -21,7 +21,7 @@ const AdminLogin: React.FC = () => {
       
       if (result.success) {
         // Successfully logged in as admin
-        navigate('/admin/dashboard');
+        navigate('/admin');
       } else {
         // Login failed
         setError(result.error || 'Login failed');

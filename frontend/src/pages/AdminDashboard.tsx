@@ -107,9 +107,28 @@ const AdminDashboard: React.FC = () => {
       <section className="admin-header">
         <div className="admin-content">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="headline-large">{t('admin.dashboard.title')}</h1>
-              <p className="body-large text-secondary">{t('admin.dashboard.managePlatform')}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <button
+                onClick={() => navigate('/admin')}
+                style={{
+                  background: 'var(--text-secondary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 'var(--radius)',
+                  padding: '0.5rem 1rem',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                ← Back to Admin Hub
+              </button>
+              <div>
+                <h1 className="headline-large">{t('admin.dashboard.title')}</h1>
+                <p className="body-large text-secondary">{t('admin.dashboard.managePlatform')}</p>
+              </div>
             </div>
           </div>
         </div>

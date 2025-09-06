@@ -112,15 +112,71 @@ const Jobs: React.FC = () => {
 
   return (
     <>
-      {/* Header Section */}
-      <section className="section" style={{ background: 'var(--background-secondary)' }}>
-        <div className="container">
-          <div className="text-center">
-            <h1 className="headline-large mb-md">{t('jobs.title', 'Available Positions')}</h1>
-            <p className="body-large text-secondary">
-              {t('jobs.subtitle', 'Discover opportunities that match your skills and career goals')}
-            </p>
-          </div>
+      {/* Header Section with Background Image */}
+      <section 
+        className="jobs-header-section"
+        style={{ 
+          backgroundImage: 'url("/images/header image.jpeg")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'scroll',
+          position: 'relative',
+          minHeight: '500px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '80px 0',
+          marginTop: 'var(--header-height)'
+        }}
+      >
+        {/* Dark overlay for text readability */}
+        <div 
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 1
+          }}
+        />
+        
+        {/* Content */}
+        <div 
+          className="container" 
+          style={{ 
+            position: 'relative', 
+            zIndex: 2,
+            textAlign: 'center'
+          }}
+        >
+          <h1 
+            style={{ 
+              color: 'white', 
+              fontSize: '3rem',
+              fontWeight: '700',
+              marginBottom: '1rem',
+              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)',
+              lineHeight: '1.2'
+            }}
+          >
+            {t('jobs.title', 'Available Positions')}
+          </h1>
+          <p 
+            style={{ 
+              color: 'rgba(255, 255, 255, 0.95)', 
+              fontSize: '1.25rem',
+              fontWeight: '400',
+              textShadow: '1px 1px 3px rgba(0, 0, 0, 0.8)',
+              maxWidth: '600px',
+              margin: '0 auto',
+              lineHeight: '1.6'
+            }}
+          >
+            {t('jobs.subtitle', 'Discover opportunities that match your skills and career goals')}
+          </p>
         </div>
       </section>
 
