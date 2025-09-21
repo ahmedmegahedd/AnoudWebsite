@@ -4,6 +4,7 @@ const https = require("https");
 const WebSocket = require("ws");
 const path = require("path");
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
 require("dotenv").config();
 const mongoose = require("mongoose");
 
@@ -107,6 +108,22 @@ app.get('/', (req, res) => {
     environment: process.env.NODE_ENV || 'development',
     port: PORT
   });
+});
+
+// Multer error handler middleware
+app.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
+    }
+    return res.status(400).json({ error: error.message });
+  }
+  
+  if (error.message === 'Invalid file type. Only PDF, DOC, and DOCX files are allowed.') {
+    return res.status(400).json({ error: error.message });
+  }
+  
+  next(error);
 });
 
 // API routes

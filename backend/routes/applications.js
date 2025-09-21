@@ -37,7 +37,9 @@ const upload = multer({
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only PDF, DOC, and DOCX files are allowed.'), false);
+      // Set a custom error property instead of throwing
+      req.fileValidationError = 'Invalid file type. Only PDF, DOC, and DOCX files are allowed.';
+      cb(null, false);
     }
   }
 });
