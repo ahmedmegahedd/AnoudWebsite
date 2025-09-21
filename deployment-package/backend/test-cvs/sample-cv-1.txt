@@ -1,0 +1,9 @@
+John Smith
+Software Engineer
+john.smith@email.com
++1234567890
+5 years experience
+JavaScript, React, Node.js
+Bachelor's in Computer Science
+San Francisco, CA
+Experienced software engineer with expertise in full-stack development.
