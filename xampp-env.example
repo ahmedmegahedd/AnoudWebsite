@@ -1,0 +1,191 @@
+# XAMPP Environment Configuration for Anoud Job Website
+# Copy this file to .env in your backend directory
+
+# ===========================================
+# SERVER CONFIGURATION
+# ===========================================
+NODE_ENV=production
+PORT=3234
+HOST=localhost
+
+# ===========================================
+# DATABASE CONFIGURATION
+# ===========================================
+# MongoDB connection string for XAMPP deployment
+MONGO_URI=mongodb://localhost:27017/Anoud
+
+# Alternative: If using MongoDB Atlas (cloud)
+# MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/Anoud?retryWrites=true&w=majority
+
+# ===========================================
+# AUTHENTICATION
+# ===========================================
+JWT_SECRET=SuperStrongSecretKey123!ChangeThisInProduction
+JWT_EXPIRES_IN=7d
+
+# ===========================================
+# EMAIL CONFIGURATION (Optional)
+# ===========================================
+# SMTP settings for email notifications
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+EMAIL_FROM=noreply@anoudjob.com
+
+# ===========================================
+# FILE UPLOAD CONFIGURATION
+# ===========================================
+# Maximum file size for uploads (in bytes)
+MAX_FILE_SIZE=5242880
+# 5MB = 5 * 1024 * 1024 bytes
+
+# Upload directory (relative to backend root)
+UPLOAD_DIR=uploads
+
+# ===========================================
+# API CONFIGURATION
+# ===========================================
+# CORS origins (comma-separated)
+CORS_ORIGINS=http://localhost,http://anoudjob.local,https://anoudjob.local
+
+# API rate limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# ===========================================
+# LOGGING CONFIGURATION
+# ===========================================
+# Log level (error, warn, info, debug)
+LOG_LEVEL=info
+
+# Log file paths (relative to backend root)
+LOG_DIR=logs
+ACCESS_LOG=logs/access.log
+ERROR_LOG=logs/error.log
+COMBINED_LOG=logs/combined.log
+
+# ===========================================
+# SECURITY CONFIGURATION
+# ===========================================
+# Session configuration
+SESSION_SECRET=AnotherSecretKey123!ChangeThisInProduction
+SESSION_COOKIE_MAX_AGE=86400000
+# 24 hours = 24 * 60 * 60 * 1000 milliseconds
+
+# Password hashing
+BCRYPT_ROUNDS=12
+
+# ===========================================
+# EXTERNAL SERVICES
+# ===========================================
+# OpenAI API key (for CV parsing)
+OPENAI_API_KEY=your_openai_api_key_here
+
+# ===========================================
+# XAMPP SPECIFIC CONFIGURATION
+# ===========================================
+# XAMPP installation path
+XAMPP_PATH=C:/xampp
+
+# Apache document root
+APACHE_DOCUMENT_ROOT=C:/xampp/htdocs/anoudjob
+
+# Node.js backend path
+NODEJS_BACKEND_PATH=C:/xampp/nodejs/anoudjob-backend
+
+# MongoDB data path (if using local MongoDB)
+MONGODB_DATA_PATH=C:/xampp/mongodb/data
+
+# ===========================================
+# DEVELOPMENT vs PRODUCTION
+# ===========================================
+# Set to 'development' for local testing
+# Set to 'production' for live deployment
+NODE_ENV=production
+
+# Enable/disable debug mode
+DEBUG=false
+
+# Enable/disable detailed error messages
+VERBOSE_ERRORS=false
+
+# ===========================================
+# BACKUP CONFIGURATION
+# ===========================================
+# Backup directory
+BACKUP_DIR=C:/xampp/backups/anoudjob
+
+# Backup frequency (in hours)
+BACKUP_FREQUENCY=24
+
+# Maximum number of backup files to keep
+MAX_BACKUP_FILES=7
+
+# ===========================================
+# MONITORING CONFIGURATION
+# ===========================================
+# Enable health check endpoint
+HEALTH_CHECK_ENABLED=true
+
+# Health check interval (in milliseconds)
+HEALTH_CHECK_INTERVAL=30000
+
+# Enable performance monitoring
+PERFORMANCE_MONITORING=true
+
+# ===========================================
+# CACHE CONFIGURATION
+# ===========================================
+# Enable Redis caching (if using Redis)
+REDIS_ENABLED=false
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# ===========================================
+# WEBSOCKET CONFIGURATION
+# ===========================================
+# Enable WebSocket support
+WEBSOCKET_ENABLED=true
+WEBSOCKET_PORT=3235
+
+# ===========================================
+# SSL/TLS CONFIGURATION
+# ===========================================
+# Enable HTTPS
+HTTPS_ENABLED=false
+SSL_CERT_PATH=C:/xampp/apache/conf/ssl.crt/server.crt
+SSL_KEY_PATH=C:/xampp/apache/conf/ssl.key/server.key
+
+# ===========================================
+# FRONTEND CONFIGURATION
+# ===========================================
+# Frontend build path
+FRONTEND_BUILD_PATH=C:/xampp/htdocs/anoudjob
+
+# API base URL for frontend
+API_BASE_URL=http://localhost:3234/api
+
+# ===========================================
+# DEPLOYMENT CONFIGURATION
+# ===========================================
+# Deployment environment
+DEPLOYMENT_ENV=xampp
+
+# Server hostname
+SERVER_HOSTNAME=anoudjob.local
+
+# Server IP address
+SERVER_IP=127.0.0.1
+
+# ===========================================
+# NOTES
+# ===========================================
+# 1. Change all secret keys in production
+# 2. Use strong passwords for database
+# 3. Enable HTTPS in production
+# 4. Configure proper firewall rules
+# 5. Set up regular backups
+# 6. Monitor server resources
+# 7. Keep software updated
