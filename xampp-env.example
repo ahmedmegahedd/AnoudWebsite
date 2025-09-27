@@ -79,8 +79,7 @@ BCRYPT_ROUNDS=12
 # ===========================================
 # EXTERNAL SERVICES
 # ===========================================
-# OpenAI API key (for CV parsing)
-OPENAI_API_KEY=your_openai_api_key_here
+# External service API keys can be added here if needed
 
 # ===========================================
 # XAMPP SPECIFIC CONFIGURATION

@@ -16,6 +16,7 @@ interface Job {
   salary: string;
   experience: string;
   description: string;
+  industry: string;
 }
 
 interface Application {

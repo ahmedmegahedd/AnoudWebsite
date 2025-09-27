@@ -112,11 +112,12 @@ router.delete('/users/:id', adminAuth, async (req, res) => {
   }
 });
 
-// Create first admin user (setup only - remove in production)
-router.post('/setup', [
-  body('name').notEmpty(),
-  body('email').isEmail(),
-  body('password').isLength({ min: 6 }),
+// Create admin user registration
+router.post('/register', [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Please provide a valid email address'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('role').optional().isIn(['admin', 'superadmin']).withMessage('Invalid role')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -124,12 +125,12 @@ router.post('/setup', [
   }
 
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role = 'admin' } = req.body;
     
-    // Check if admin already exists
-    const existingAdmin = await User.findOne({ role: 'admin' });
-    if (existingAdmin) {
-      return res.status(400).json({ error: 'Admin user already exists' });
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this email already exists' });
     }
 
     // Hash password
@@ -140,13 +141,22 @@ router.post('/setup', [
     const adminUser = new User({
       name,
       email,
+      phone: '0000000000', // Default phone number
       password: hashedPassword,
-      role: 'admin'
+      role: role
     });
 
     await adminUser.save();
 
-    res.status(201).json({ message: 'Admin user created successfully' });
+    res.status(201).json({ 
+      message: 'Admin user created successfully',
+      user: {
+        id: adminUser._id,
+        name: adminUser.name,
+        email: adminUser.email,
+        role: adminUser.role
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

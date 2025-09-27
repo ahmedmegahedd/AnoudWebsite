@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 import { useNotification } from './NotificationContext';
 
@@ -24,8 +24,11 @@ interface Job {
   experience_ar: string;
   description_en: string;
   description_ar: string;
+  industry_en: string;
+  industry_ar: string;
   type: string;
   featured: boolean;
+  isActive?: boolean; // Controls job visibility
   postedAt: string;
   company: Company;
   applicantCount?: number; // Number of applicants for this job
@@ -43,6 +46,8 @@ interface JobContextType {
   updateJob: (jobId: string, updatedJob: Partial<Omit<Job, 'company'>> & { company?: string }) => Promise<void>;
   deleteJob: (jobId: string) => Promise<void>;
   toggleFeatured: (jobId: string) => Promise<void>;
+  toggleActive: (jobId: string) => Promise<void>;
+  fetchAdminJobs: () => Promise<void>;
 }
 
 const JobContext = createContext<JobContextType | undefined>(undefined);
@@ -266,8 +271,8 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
   const toggleFeatured = async (jobId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}/${jobId}/toggleFeatured`, {
-        method: 'PUT',
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}/${jobId}/featured`, {
+        method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -294,6 +299,60 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
     }
   };
 
+  const toggleActive = useCallback(async (jobId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}/${jobId}/active`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to toggle active status');
+      }
+
+      setJobs(prevJobs => prevJobs.map(job => 
+        job._id === jobId ? { ...job, isActive: !job.isActive } : job
+      ));
+      
+      // Show success notification
+      const newActiveStatus = !jobs.find(job => job._id === jobId)?.isActive;
+      showNotification(`Job ${newActiveStatus ? 'activated' : 'deactivated'} successfully!`, 'success');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to toggle active status');
+      throw err;
+    }
+  }, [jobs, showNotification]);
+
+  const fetchAdminJobs = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.JOBS}/admin/all`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch admin jobs');
+      }
+
+      const adminJobs = await response.json();
+      setJobs(adminJobs);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch admin jobs');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchJobs();
     fetchFeaturedJobs();
@@ -317,6 +376,8 @@ export const JobProvider: React.FC<JobProviderProps> = ({ children }) => {
     updateJob,
     deleteJob,
     toggleFeatured,
+    toggleActive,
+    fetchAdminJobs,
   };
 
   return (

@@ -26,7 +26,10 @@ export interface Job {
   salary_ar: string;
   experience_en: string;
   experience_ar: string;
+  industry_en: string;
+  industry_ar: string;
   featured?: boolean;
+  isActive?: boolean; // Controls job visibility
   postedAt: string;
   applicantCount?: number; // Number of applicants for this job
 }
@@ -97,6 +100,7 @@ const JobList: React.FC<JobListProps> = ({ jobs, onViewDetails }) => {
             <div className="job-highlights">
               <span><strong>{t('jobs.salary')}:</strong> {getTranslatedContent(job.salary_en, job.salary_ar)}</span>
               <span><strong>{t('jobs.experience')}:</strong> {getTranslatedContent(job.experience_en, job.experience_ar)}</span>
+              <span><strong>{t('jobs.industry')}:</strong> {getTranslatedContent(job.industry_en, job.industry_ar)}</span>
             </div>
             <div className="job-actions">
               <button className="btn btn-primary btn-small">

@@ -17,7 +17,10 @@ interface Job {
   experience_ar: string;
   description_en: string;
   description_ar: string;
+  industry_en: string;
+  industry_ar: string;
   featured: boolean;
+  isActive: boolean;
 }
 
 interface JobFormProps {
@@ -43,14 +46,20 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, isSubmitting
     experience_ar: '',
     description_en: '',
     description_ar: '',
-    featured: false // Initialize featured
+    industry_en: '',
+    industry_ar: '',
+    featured: false, // Initialize featured
+    isActive: true // Initialize isActive
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (job) {
-      setFormData(job);
+      setFormData({
+        ...job,
+        isActive: job.isActive !== undefined ? job.isActive : true
+      });
     }
   }, [job]);
 
@@ -99,6 +108,14 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, isSubmitting
 
     if (!formData.description_ar.trim()) {
       newErrors.description_ar = 'Job description (Arabic) is required';
+    }
+
+    if (!formData.industry_en.trim()) {
+      newErrors.industry_en = 'Industry (English) is required';
+    }
+
+    if (!formData.industry_ar.trim()) {
+      newErrors.industry_ar = 'Industry (Arabic) is required';
     }
 
     setErrors(newErrors);
@@ -353,6 +370,43 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, isSubmitting
             </div>
           </div>
 
+          {/* Industry - Dual Language */}
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="industry_en" className="form-label">
+                Industry (English) *
+              </label>
+              <input
+                id="industry_en"
+                name="industry_en"
+                type="text"
+                value={formData.industry_en}
+                onChange={handleInputChange}
+                placeholder="e.g., Technology, Healthcare, Finance"
+                className={`form-input ${errors.industry_en ? 'error' : ''}`}
+                disabled={isSubmitting}
+              />
+              {errors.industry_en && <div className="field-error">{errors.industry_en}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="industry_ar" className="form-label">
+                Industry (Arabic) *
+              </label>
+              <input
+                id="industry_ar"
+                name="industry_ar"
+                type="text"
+                value={formData.industry_ar}
+                onChange={handleInputChange}
+                placeholder="مثال: التكنولوجيا، الرعاية الصحية، المالية"
+                className={`form-input ${errors.industry_ar ? 'error' : ''}`}
+                disabled={isSubmitting}
+              />
+              {errors.industry_ar && <div className="field-error">{errors.industry_ar}</div>}
+            </div>
+          </div>
+
           {/* Job Description - Dual Language */}
           <div className="form-group">
             <label className="form-label">
@@ -404,6 +458,21 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, isSubmitting
                 style={{ marginRight: '0.5rem' }}
               />
               Mark as Featured Job (will appear on home page)
+            </label>
+          </div>
+
+          {/* Active Job Checkbox */}
+          <div className="form-group">
+            <label className="form-label">
+              <input
+                type="checkbox"
+                name="isActive"
+                checked={formData.isActive}
+                onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                disabled={isSubmitting}
+                style={{ marginRight: '0.5rem' }}
+              />
+              Job is Active (visible to public)
             </label>
           </div>
 

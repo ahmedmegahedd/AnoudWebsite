@@ -22,6 +22,7 @@ import AdminApplicants from './pages/AdminApplicants';
 import ApplicantView from './pages/ApplicantView';
 import Leads from './pages/Leads';
 import UserManagement from './pages/UserManagement';
+import Media from './pages/Media';
 import { initializeLanguage } from './i18n';
 
 const AppContent: React.FC = () => {
@@ -125,6 +126,7 @@ const AppContent: React.FC = () => {
           <div className="nav-links">
             <Link to="/" className="nav-link">{t('nav.home')}</Link>
             <Link to="/jobs" className="nav-link">{t('nav.jobs')}</Link>
+            <Link to="/media" className="nav-link">{t('nav.media')}</Link>
             {/* Show About Us link for non-admin/superadmin users and non-logged-in visitors */}
             {(!user || (user.role !== 'admin' && user.role !== 'superadmin')) && (
               <Link to="/about-us" className="nav-link">{t('nav.about')}</Link>
@@ -342,6 +344,15 @@ const AppContent: React.FC = () => {
                   <span>{t('nav.jobs')}</span>
                 </Link>
                 
+                <Link 
+                  to="/media" 
+                  className="mobile-nav-link"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <span className="mobile-nav-icon">🎥</span>
+                  <span>{t('nav.media')}</span>
+                </Link>
+                
                 {/* Show About Us link for non-admin/superadmin users and non-logged-in visitors */}
                 {(!user || (user.role !== 'admin' && user.role !== 'superadmin')) && (
                   <Link 
@@ -405,6 +416,7 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/jobs/:jobId" element={<JobDetailPage />} />
+          <Route path="/media" element={<Media />} />
           <Route path="/about-us" element={<About />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/secure-access" element={<AdminLogin />} />

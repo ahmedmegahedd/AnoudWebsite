@@ -61,6 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     try {
       // Try admin login first
+      console.log('🔧 Attempting admin login:', { email, url: `${API_BASE_URL}${API_ENDPOINTS.ADMIN}/login` });
       let response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.ADMIN}/login`, {
         method: 'POST',
         headers: {
@@ -68,17 +69,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
         body: JSON.stringify({ email, password }),
       });
+      
+      console.log('🔧 Admin login response status:', response.status);
 
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Admin login successful:', data.user);
         setUser(data.user);
         setToken(data.token);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         return { success: true, role: 'admin' };
+      } else {
+        const errorData = await response.text();
+        console.log('❌ Admin login failed:', response.status, errorData);
       }
 
       // If admin login fails, try regular user login
+      console.log('🔧 Attempting user login:', { email, url: `${API_BASE_URL}${API_ENDPOINTS.USERS}/login` });
       response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.USERS}/login`, {
         method: 'POST',
         headers: {
@@ -86,6 +94,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
         body: JSON.stringify({ email, password }),
       });
+      
+      console.log('🔧 User login response status:', response.status);
 
       if (response.ok) {
         const data = await response.json();

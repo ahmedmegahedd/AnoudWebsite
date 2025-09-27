@@ -10,7 +10,6 @@ const Application = require('../models/Application');
 const Job = require('../models/Job');
 const { body, validationResult } = require('express-validator');
 const adminAuth = require('../middleware/adminAuth');
-const { extractCVText, cleanCVText } = require('../utils/cvParser');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -254,7 +253,6 @@ router.post('/public', [
       education: req.body.education,
       selfIntro: req.body.selfIntro,
       resume: null,
-      cvText: null,
       job: new mongoose.Types.ObjectId(req.body.jobId),
       appliedAt: new Date(),
     });
@@ -294,8 +292,7 @@ router.post('/test', [
       phone: req.body.phone,
       education: req.body.education,
       selfIntro: req.body.selfIntro,
-      resume: null,
-      cvText: null, // Add cvText field for test
+      resume: null, // Add cvText field for test
       job: new mongoose.Types.ObjectId(req.body.jobId),
       appliedAt: new Date(),
     });
@@ -347,36 +344,6 @@ router.post('/', upload.single('resume'), [
     }
     console.log('Job found:', job.title);
     
-    // Extract CV text if resume is uploaded (make it optional to prevent submission failures)
-    let cvText = null;
-    if (req.file) {
-      try {
-        const filePath = path.join(__dirname, '../uploads', req.file.filename);
-        console.log('Attempting to extract CV text from:', filePath);
-        
-        // Check if file exists
-        if (!fs.existsSync(filePath)) {
-          console.log('CV file not found at path:', filePath);
-        } else {
-          // Check if CV parser functions are available
-          if (typeof extractCVText === 'function' && typeof cleanCVText === 'function') {
-            const extractedText = await extractCVText(filePath);
-            if (extractedText) {
-              cvText = cleanCVText(extractedText);
-              console.log('CV text extracted successfully, length:', cvText.length);
-            } else {
-              console.log('Failed to extract CV text - extractedText is null/empty');
-            }
-          } else {
-            console.log('CV parser functions not available, skipping text extraction');
-          }
-        }
-      } catch (cvError) {
-        console.error('Error during CV text extraction:', cvError);
-        // Don't fail the application submission if CV extraction fails
-        console.log('Continuing with application submission without CV text extraction');
-      }
-    }
     
     // Create application object
     const applicationData = {
@@ -386,7 +353,6 @@ router.post('/', upload.single('resume'), [
       education: req.body.education,
       selfIntro: req.body.selfIntro,
       resume: req.file ? req.file.filename : null,
-      cvText: cvText, // Store extracted CV text (null if extraction failed)
       job: new mongoose.Types.ObjectId(req.body.jobId), // Explicitly convert to ObjectId
       appliedAt: new Date(),
     };
@@ -447,7 +413,6 @@ router.get('/job/:jobId', adminAuth, async (req, res) => {
         { email: searchRegex },
         { education: searchRegex },
         { selfIntro: searchRegex },
-        { cvText: searchRegex } // Include CV text in search
       ];
     }
 
@@ -658,88 +623,6 @@ router.post('/download-cvs', adminAuth, [
   }
 });
 
-// Utility route to extract CV text from existing applications (admin only)
-router.post('/extract-cv-text', adminAuth, async (req, res) => {
-  try {
-    const { applicationId } = req.body;
-    
-    if (!applicationId) {
-      return res.status(400).json({ error: 'Application ID is required' });
-    }
-
-    const application = await Application.findById(applicationId);
-    if (!application) {
-      return res.status(404).json({ error: 'Application not found' });
-    }
-
-    if (!application.resume) {
-      return res.status(400).json({ error: 'No resume file found for this application' });
-    }
-
-    // Extract CV text
-    const filePath = path.join(__dirname, '../uploads', application.resume);
-    const extractedText = await extractCVText(filePath);
-    
-    if (extractedText) {
-      const cleanedText = cleanCVText(extractedText);
-      application.cvText = cleanedText;
-      await application.save();
-      
-      res.json({ 
-        message: 'CV text extracted successfully',
-        textLength: cleanedText.length
-      });
-    } else {
-      res.status(400).json({ error: 'Failed to extract text from CV' });
-    }
-  } catch (err) {
-    console.error('Error extracting CV text:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Bulk extract CV text from all applications without cvText (admin only)
-router.post('/extract-all-cv-text', adminAuth, async (req, res) => {
-  try {
-    // Find all applications with resume but without cvText
-    const applications = await Application.find({
-      resume: { $exists: true, $ne: null },
-      cvText: { $exists: false }
-    });
-
-    let successCount = 0;
-    let errorCount = 0;
-
-    for (const application of applications) {
-      try {
-        const filePath = path.join(__dirname, '../uploads', application.resume);
-        const extractedText = await extractCVText(filePath);
-        
-        if (extractedText) {
-          const cleanedText = cleanCVText(extractedText);
-          application.cvText = cleanedText;
-          await application.save();
-          successCount++;
-        } else {
-          errorCount++;
-        }
-      } catch (err) {
-        console.error(`Error extracting CV text for application ${application._id}:`, err);
-        errorCount++;
-      }
-    }
-
-    res.json({ 
-      message: 'CV text extraction completed',
-      totalProcessed: applications.length,
-      successCount,
-      errorCount
-    });
-  } catch (err) {
-    console.error('Error in bulk CV text extraction:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
 
 // Export applicants data as CSV (admin only)
 router.post('/export-data', adminAuth, [
@@ -773,7 +656,6 @@ router.post('/export-data', adminAuth, [
         { email: searchRegex },
         { education: searchRegex },
         { selfIntro: searchRegex },
-        { cvText: searchRegex }
       ];
     }
 

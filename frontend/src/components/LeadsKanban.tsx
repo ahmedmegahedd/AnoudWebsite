@@ -32,11 +32,16 @@ interface Lead {
   email: string;
   phone: string;
   status: 'New' | 'Contacted' | 'In Discussion' | 'Converted' | 'Lost';
-  customColumnId?: string;
+  customColumnId?: string | null;
   leadSource: 'Website Form' | 'Manual' | 'Referral' | 'Other';
   notes?: string;
   followUpDate?: string;
   followUpStatus: 'Pending' | 'Completed' | 'Overdue';
+  createdBy: {
+    adminId: string;
+    adminEmail: string;
+    adminName: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -59,7 +64,8 @@ const SortableLeadCard: React.FC<{
   lead: Lead; 
   onEdit: () => void; 
   onDelete: () => void; 
-}> = ({ lead, onEdit, onDelete }) => {
+  showAdminLabel?: boolean;
+}> = ({ lead, onEdit, onDelete, showAdminLabel = false }) => {
   const {
     attributes,
     listeners,
@@ -116,6 +122,19 @@ const SortableLeadCard: React.FC<{
             }}>
               {lead.notes.length > 60 ? `${lead.notes.substring(0, 60)}...` : lead.notes}
             </p>
+          )}
+          {showAdminLabel && (
+            <div style={{
+              margin: '0.5rem 0 0 0',
+              padding: '0.25rem 0.5rem',
+              background: 'var(--background-secondary)',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.7rem',
+              color: 'var(--text-secondary)',
+              border: '1px solid var(--border)'
+            }}>
+              👤 {lead.createdBy.adminName}
+            </div>
           )}
         </div>
         <div style={{ display: 'flex', gap: '0.25rem', flexDirection: 'column' }}>
@@ -194,7 +213,8 @@ const DroppableColumn: React.FC<{
   onDelete: (leadId: string) => void;
   onDeleteColumn: (columnId: string) => void;
   deletedDefaultColumns: string[];
-}> = ({ column, onEdit, onDelete, onDeleteColumn, deletedDefaultColumns }) => {
+  showAdminLabel?: boolean;
+}> = ({ column, onEdit, onDelete, onDeleteColumn, deletedDefaultColumns, showAdminLabel = false }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
@@ -297,6 +317,7 @@ const DroppableColumn: React.FC<{
               lead={lead}
               onEdit={() => onEdit(lead)}
               onDelete={() => onDelete(lead._id)}
+              showAdminLabel={showAdminLabel}
             />
           ))}
         </div>
@@ -329,6 +350,9 @@ const DroppableColumn: React.FC<{
 const LeadsKanban: React.FC<LeadsKanbanProps> = ({ leads, onLeadUpdate, onLeadDelete }) => {
   const { showNotification } = useNotification();
   const { user } = useAuth();
+  
+  // Show admin labels for superadmins
+  const showAdminLabel = user?.role === 'superadmin';
   const [columns, setColumns] = useState<KanbanColumn[]>([]);
   const [customColumns, setCustomColumns] = useState<KanbanColumn[]>([]);
   const [newColumnName, setNewColumnName] = useState('');
@@ -592,7 +616,7 @@ const LeadsKanban: React.FC<LeadsKanbanProps> = ({ leads, onLeadUpdate, onLeadDe
             console.log('🔄 Moving lead to default column:', overColumn.title);
             await onLeadUpdate(activeId as string, { 
               status: overColumn.id as Lead['status'],
-              customColumnId: undefined 
+              customColumnId: null 
             });
             showNotification(`Lead moved to ${overColumn.title}`, 'success');
           }
@@ -643,7 +667,7 @@ const LeadsKanban: React.FC<LeadsKanbanProps> = ({ leads, onLeadUpdate, onLeadDe
             console.log('🔄 Moving lead to default column:', overLeadColumn.title);
             await onLeadUpdate(activeId as string, { 
               status: overLeadColumn.id as Lead['status'],
-              customColumnId: undefined 
+              customColumnId: null 
             });
             showNotification(`Lead moved to ${overLeadColumn.title}`, 'success');
           }
@@ -1045,6 +1069,7 @@ const LeadsKanban: React.FC<LeadsKanbanProps> = ({ leads, onLeadUpdate, onLeadDe
               onDelete={handleLeadDelete}
               onDeleteColumn={deleteColumn}
               deletedDefaultColumns={deletedDefaultColumns}
+              showAdminLabel={showAdminLabel}
             />
           ))}
         </div>

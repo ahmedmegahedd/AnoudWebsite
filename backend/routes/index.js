@@ -9,6 +9,6 @@ router.use('/users', require('./users'));
 router.use('/companies', require('./companies'));
 router.use('/contact', require('./contact'));
 router.use('/leads', require('./leads'));
-router.use('/cv-upload', require('./cvUpload'));
+router.use('/media', require('./media'));
 
 module.exports = router;

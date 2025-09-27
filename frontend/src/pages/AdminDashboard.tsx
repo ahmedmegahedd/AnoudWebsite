@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useJobs } from '../context/JobContext';
 import JobForm from '../components/JobForm';
-import CVUpload from '../components/CVUpload';
 import JobDomainManager from '../components/JobDomainManager';
 import { Job } from '../components/JobList'; // Import Job interface from JobList
 
@@ -15,7 +14,6 @@ const AdminDashboard: React.FC = () => {
   const { jobs, loading, error } = useJobs();
   const [activeTab, setActiveTab] = useState('overview');
   const [showJobForm, setShowJobForm] = useState(false);
-  const [showCVUpload, setShowCVUpload] = useState(false);
   const [showDomainManager, setShowDomainManager] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,10 +69,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleUsersCreated = (users: any[]) => {
-    console.log('Users created from CV upload:', users);
-    // You can add logic here to refresh user data or show additional notifications
-  };
 
   if (loading) {
     return (
@@ -238,30 +232,6 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="card" onClick={() => setShowCVUpload(true)}>
-              <div className="card-body text-center">
-                <div className="mb-lg">
-                  <div style={{
-                    width: '64px',
-                    height: '64px',
-                    background: 'var(--info)',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto',
-                    fontSize: '24px',
-                    color: 'white'
-                  }}>
-                    📁
-                  </div>
-                </div>
-                <h3 className="headline-small mb-md">Bulk CV Upload</h3>
-                <p className="body-medium text-secondary">
-                  Upload ZIP files and auto-create user accounts
-                </p>
-              </div>
-            </div>
 
             <div className="card" onClick={() => setShowDomainManager(true)}>
               <div className="card-body text-center">
@@ -412,7 +382,10 @@ const AdminDashboard: React.FC = () => {
             experience_ar: editingJob.experience_ar,
             description_en: editingJob.description_en,
             description_ar: editingJob.description_ar,
-            featured: editingJob.featured || false
+            industry_en: editingJob.industry_en,
+            industry_ar: editingJob.industry_ar,
+            featured: editingJob.featured || false,
+            isActive: editingJob.isActive !== undefined ? editingJob.isActive : true
           } : undefined}
           onSubmit={editingJob ? handleUpdateJob : handleCreateJob}
           onCancel={handleCancelJobForm}
@@ -420,59 +393,6 @@ const AdminDashboard: React.FC = () => {
         />
       )}
 
-      {/* CV Upload Modal */}
-      {showCVUpload && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: 'var(--radius-lg)',
-            maxWidth: '90vw',
-            maxHeight: '90vh',
-            width: '100%',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '1.5rem',
-              borderBottom: '1px solid var(--border)'
-            }}>
-              <h2 style={{ margin: 0 }}>📁 Bulk CV Upload</h2>
-              <button
-                onClick={() => setShowCVUpload(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  color: 'var(--text-secondary)',
-                  padding: '0.25rem'
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <div style={{ flex: 1, overflow: 'auto' }}>
-              <CVUpload onUsersCreated={handleUsersCreated} />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Domain Manager Modal */}
       {showDomainManager && (

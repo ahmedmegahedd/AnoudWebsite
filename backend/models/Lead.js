@@ -48,6 +48,22 @@ const LeadSchema = new mongoose.Schema({
     enum: ['Pending', 'Completed', 'Overdue'],
     default: 'Pending'
   },
+  // Admin ownership - tracks which admin created this lead
+  createdBy: {
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    adminEmail: {
+      type: String,
+      required: true
+    },
+    adminName: {
+      type: String,
+      required: true
+    }
+  },
   emailHistory: [{
     subject: String,
     body: String,

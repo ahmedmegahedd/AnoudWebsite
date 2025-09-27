@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import LeadsKanban from '../components/LeadsKanban';
-import LeadsCVImport from '../components/LeadsCVImport';
 import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 interface Lead {
@@ -14,10 +13,16 @@ interface Lead {
   email: string;
   phone: string;
   status: 'New' | 'Contacted' | 'In Discussion' | 'Converted' | 'Lost';
+  customColumnId?: string | null;
   leadSource: 'Website Form' | 'Manual' | 'Referral' | 'Other';
   notes?: string;
   followUpDate?: string;
   followUpStatus: 'Pending' | 'Completed' | 'Overdue';
+  createdBy: {
+    adminId: string;
+    adminEmail: string;
+    adminName: string;
+  };
   emailHistory: Array<{
     subject: string;
     body: string;
@@ -53,6 +58,13 @@ interface Analytics {
   recentLeads: Lead[];
 }
 
+interface Admin {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 const Leads: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -62,11 +74,15 @@ const Leads: React.FC = () => {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [admins, setAdmins] = useState<Admin[]>([]);
   
   // Filters and search
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [adminFilter, setAdminFilter] = useState('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
   
@@ -79,7 +95,6 @@ const Leads: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
-  const [showCVImportModal, setShowCVImportModal] = useState(false);
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [importing, setImporting] = useState(false);
@@ -110,7 +125,10 @@ const Leads: React.FC = () => {
   useEffect(() => {
     fetchLeads();
     fetchAnalytics();
-  }, [searchTerm, statusFilter, sourceFilter, sortBy, sortOrder, currentPage]);
+    if (currentUser?.role === 'superadmin') {
+      fetchAdmins();
+    }
+  }, [searchTerm, statusFilter, sourceFilter, adminFilter, dateFrom, dateTo, sortBy, sortOrder, currentPage]);
 
   const fetchLeads = async () => {
     try {
@@ -121,6 +139,9 @@ const Leads: React.FC = () => {
       if (searchTerm) params.append('search', searchTerm);
       if (statusFilter !== 'all') params.append('status', statusFilter);
       if (sourceFilter !== 'all') params.append('leadSource', sourceFilter);
+      if (adminFilter !== 'all') params.append('adminId', adminFilter);
+      if (dateFrom) params.append('dateFrom', dateFrom);
+      if (dateTo) params.append('dateTo', dateTo);
       params.append('sortBy', sortBy);
       params.append('sortOrder', sortOrder);
       params.append('page', currentPage.toString());
@@ -168,6 +189,27 @@ const Leads: React.FC = () => {
     }
   };
 
+  const fetchAdmins = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/admins`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch admins');
+      }
+
+      const data = await response.json();
+      setAdmins(data.admins);
+    } catch (err) {
+      console.error('Error fetching admins:', err);
+    }
+  };
+
   const handleAddLead = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -209,7 +251,16 @@ const Leads: React.FC = () => {
     try {
       console.log('🔄 Updating lead:', leadId, 'with updates:', updates);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.LEADS}/${leadId}`, {
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      const url = `${API_BASE_URL}${API_ENDPOINTS.LEADS}/${leadId}`;
+      console.log('📡 Making request to:', url);
+      console.log('📦 Request body:', JSON.stringify(updates));
+      
+      const response = await fetch(url, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -218,17 +269,23 @@ const Leads: React.FC = () => {
         body: JSON.stringify(updates)
       });
 
+      console.log('📊 Response status:', response.status);
+      console.log('📊 Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update lead');
+        console.error('❌ Error response:', errorData);
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to update lead`);
       }
 
-      console.log('✅ Lead updated successfully, refreshing data...');
+      const result = await response.json();
+      console.log('✅ Lead updated successfully:', result);
       setEditingLead(null);
       await fetchLeads();
       await fetchAnalytics();
       showNotification('Lead updated successfully!', 'success');
     } catch (err) {
+      console.error('❌ Error in handleUpdateLead:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to update lead';
       showNotification(errorMessage, 'error');
     }
@@ -452,7 +509,6 @@ const Leads: React.FC = () => {
   const handleLeadsImported = (importedLeads: any[]) => {
     fetchLeads();
     fetchAnalytics();
-    setShowCVImportModal(false);
   };
 
   const getStatusColor = (status: Lead['status']) => {
@@ -598,21 +654,6 @@ const Leads: React.FC = () => {
           >
             Import CSV
           </button>
-          <button
-            onClick={() => setShowCVImportModal(true)}
-            style={{
-              background: 'var(--info)',
-              color: 'white',
-              border: 'none',
-              borderRadius: 'var(--radius)',
-              padding: '0.5rem 1rem',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: 600
-            }}
-          >
-            🤖 AI Import from CVs
-          </button>
         </div>
       </div>
 
@@ -757,6 +798,54 @@ const Leads: React.FC = () => {
             <option value="Referral">Referral</option>
             <option value="Other">Other</option>
           </select>
+
+          {/* Admin filter - only for superadmins */}
+          {currentUser?.role === 'superadmin' && (
+            <select
+              value={adminFilter}
+              onChange={(e) => setAdminFilter(e.target.value)}
+              style={{
+                padding: '0.5rem',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                fontSize: '0.9rem'
+              }}
+            >
+              <option value="all">All Admins</option>
+              {admins.map(admin => (
+                <option key={admin._id} value={admin._id}>
+                  {admin.name} ({admin.role})
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Date range filters */}
+          <input
+            type="date"
+            placeholder="From Date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            style={{
+              padding: '0.5rem',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius)',
+              fontSize: '0.9rem'
+            }}
+          />
+
+          <input
+            type="date"
+            placeholder="To Date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            style={{
+              padding: '0.5rem',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius)',
+              fontSize: '0.9rem'
+            }}
+          />
           
           <select
             value={`${sortBy}-${sortOrder}`}
@@ -779,6 +868,34 @@ const Leads: React.FC = () => {
             <option value="status-asc">Status (A-Z)</option>
             <option value="followUpDate-asc">Follow-up Date (Earliest)</option>
           </select>
+        </div>
+
+        {/* Clear filters button */}
+        <div style={{ marginTop: '1rem', textAlign: 'right' }}>
+          <button
+            onClick={() => {
+              setSearchTerm('');
+              setStatusFilter('all');
+              setSourceFilter('all');
+              setAdminFilter('all');
+              setDateFrom('');
+              setDateTo('');
+              setSortBy('createdAt');
+              setSortOrder('desc');
+              setCurrentPage(1);
+            }}
+            style={{
+              padding: '0.5rem 1rem',
+              background: 'var(--text-secondary)',
+              color: 'white',
+              border: 'none',
+              borderRadius: 'var(--radius)',
+              cursor: 'pointer',
+              fontSize: '0.9rem'
+            }}
+          >
+            Clear All Filters
+          </button>
         </div>
       </div>
 
@@ -1767,58 +1884,6 @@ const Leads: React.FC = () => {
         </div>
       )}
 
-      {/* CV Import Modal */}
-      {showCVImportModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: 'var(--radius-lg)',
-            maxWidth: '90vw',
-            maxHeight: '90vh',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '1rem 2rem',
-              borderBottom: '1px solid var(--border)',
-              background: 'var(--bg-secondary)'
-            }}>
-              <h3 style={{ margin: 0 }}>🤖 AI Import Leads from CVs</h3>
-              <button
-                onClick={() => setShowCVImportModal(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  color: 'var(--text-secondary)',
-                  padding: '0.25rem'
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <div style={{ overflow: 'auto', flex: 1 }}>
-              <LeadsCVImport onLeadsImported={handleLeadsImported} />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

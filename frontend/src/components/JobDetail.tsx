@@ -45,6 +45,9 @@ const JobDetail: React.FC<JobDetailProps> = ({ job, onApply }) => {
             <div className="info-row">
               <strong>{t('jobDetail.experience')}:</strong> {getTranslatedContent(job.experience_en, job.experience_ar)}
             </div>
+            <div className="info-row">
+              <strong>{t('jobs.industry')}:</strong> {getTranslatedContent(job.industry_en, job.industry_ar)}
+            </div>
           </div>
         </div>
 

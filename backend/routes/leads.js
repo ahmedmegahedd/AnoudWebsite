@@ -21,10 +21,22 @@ router.get('/', adminAuth, async (req, res) => {
       sortBy = 'createdAt', 
       sortOrder = 'desc',
       page = 1,
-      limit = 50
+      limit = 50,
+      adminId, // New filter for superadmins to select specific admin
+      dateFrom, // New filter for date range
+      dateTo // New filter for date range
     } = req.query;
 
     let query = {};
+
+    // Admin ownership filter - regular admins only see their own leads
+    if (req.user.role === 'admin') {
+      query['createdBy.adminId'] = req.user._id;
+    } else if (req.user.role === 'superadmin' && adminId && adminId !== 'all') {
+      // Superadmins can filter by specific admin
+      query['createdBy.adminId'] = adminId;
+    }
+    // Superadmins can see all leads (no filter applied) if no adminId specified
 
     // Status filter
     if (status && status !== 'all') {
@@ -34,6 +46,17 @@ router.get('/', adminAuth, async (req, res) => {
     // Lead source filter
     if (leadSource && leadSource !== 'all') {
       query.leadSource = leadSource;
+    }
+
+    // Date range filter
+    if (dateFrom || dateTo) {
+      query.updatedAt = {};
+      if (dateFrom) {
+        query.updatedAt.$gte = new Date(dateFrom);
+      }
+      if (dateTo) {
+        query.updatedAt.$lte = new Date(dateTo + 'T23:59:59.999Z');
+      }
     }
 
     // Search functionality
@@ -64,6 +87,7 @@ router.get('/', adminAuth, async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const leads = await Lead.find(query)
+      .populate('createdBy.adminId', 'name email')
       .sort(sortOptions)
       .skip(skip)
       .limit(parseInt(limit));
@@ -87,8 +111,15 @@ router.get('/', adminAuth, async (req, res) => {
 // Get lead analytics
 router.get('/analytics', adminAuth, async (req, res) => {
   try {
+    // Build base match for admin ownership
+    let baseMatch = {};
+    if (req.user.role === 'admin') {
+      baseMatch['createdBy.adminId'] = req.user._id;
+    }
+
     // Status breakdown
     const statusStats = await Lead.aggregate([
+      { $match: baseMatch },
       {
         $group: {
           _id: '$status',
@@ -99,6 +130,7 @@ router.get('/analytics', adminAuth, async (req, res) => {
 
     // Lead source breakdown
     const sourceStats = await Lead.aggregate([
+      { $match: baseMatch },
       {
         $group: {
           _id: '$leadSource',
@@ -110,17 +142,19 @@ router.get('/analytics', adminAuth, async (req, res) => {
     // Follow-up reminders
     const today = new Date();
     const upcomingFollowUps = await Lead.find({
+      ...baseMatch,
       followUpDate: { $gte: today },
       followUpStatus: 'Pending'
     }).sort({ followUpDate: 1 }).limit(10);
 
     const overdueFollowUps = await Lead.find({
+      ...baseMatch,
       followUpDate: { $lt: today },
       followUpStatus: 'Pending'
     }).sort({ followUpDate: 1 }).limit(10);
 
     // Recent activity
-    const recentLeads = await Lead.find()
+    const recentLeads = await Lead.find(baseMatch)
       .sort({ createdAt: -1 })
       .limit(5);
 
@@ -209,6 +243,25 @@ router.delete('/custom-columns/:columnId', adminAuth, async (req, res) => {
   }
 });
 
+// Get all admins for superadmin filter dropdown
+router.get('/admins', adminAuth, async (req, res) => {
+  try {
+    // Only superadmins can see all admins for filtering
+    if (req.user.role !== 'superadmin') {
+      return res.status(403).json({ error: 'Access denied. Superadmin role required.' });
+    }
+
+    const admins = await User.find({ role: { $in: ['admin', 'superadmin'] } })
+      .select('_id name email role')
+      .sort({ name: 1 });
+
+    res.json({ admins });
+  } catch (err) {
+    console.error('Error fetching admins:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Get a specific lead by ID
 router.get('/:id', adminAuth, async (req, res) => {
   try {
@@ -254,6 +307,11 @@ router.post('/', adminAuth, [
 
     const lead = new Lead({
       ...req.body,
+      createdBy: {
+        adminId: req.user._id,
+        adminEmail: req.user.email,
+        adminName: req.user.name
+      },
       auditHistory: [auditEntry],
       lastModifiedBy: {
         adminId: req.user.id,
@@ -278,7 +336,12 @@ router.patch('/:id', adminAuth, [
   body('email').optional().isEmail().withMessage('Valid email is required'),
   body('phone').optional().notEmpty().withMessage('Phone number cannot be empty'),
   body('status').optional().isIn(['New', 'Contacted', 'In Discussion', 'Converted', 'Lost']),
-  body('customColumnId').optional().isString(),
+  body('customColumnId').optional().custom((value) => {
+    if (value === null || value === undefined || typeof value === 'string') {
+      return true;
+    }
+    throw new Error('customColumnId must be a string or null');
+  }),
   body('leadSource').optional().isIn(['Website Form', 'Manual', 'Referral', 'Other']),
   body('notes').optional(),
   body('followUpDate').optional().isISO8601(),
@@ -294,6 +357,11 @@ router.patch('/:id', adminAuth, [
     const currentLead = await Lead.findById(req.params.id);
     if (!currentLead) {
       return res.status(404).json({ error: 'Lead not found' });
+    }
+
+    // Check if admin can modify this lead (only creator or superadmin)
+    if (req.user.role === 'admin' && currentLead.createdBy.adminId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'You can only modify leads you created' });
     }
 
     // Prepare audit entry
@@ -345,6 +413,11 @@ router.delete('/:id', adminAuth, async (req, res) => {
     
     if (!lead) {
       return res.status(404).json({ error: 'Lead not found' });
+    }
+
+    // Check if admin can delete this lead (only creator or superadmin)
+    if (req.user.role === 'admin' && lead.createdBy.adminId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'You can only delete leads you created' });
     }
 
     // Add audit entry before deletion
@@ -557,8 +630,18 @@ router.post('/import-csv', adminAuth, upload.single('csv'), async (req, res) => 
       });
     }
 
+    // Add createdBy information to each lead
+    const leadsWithOwnership = leads.map(lead => ({
+      ...lead,
+      createdBy: {
+        adminId: req.user._id,
+        adminEmail: req.user.email,
+        adminName: req.user.name
+      }
+    }));
+
     // Insert leads
-    const insertedLeads = await Lead.insertMany(leads);
+    const insertedLeads = await Lead.insertMany(leadsWithOwnership);
 
     res.json({ 
       message: `Successfully imported ${insertedLeads.length} leads${errors.length > 0 ? ` (${errors.length} rows had errors)` : ''}`,
@@ -582,6 +665,11 @@ router.post('/export-csv', adminAuth, [
     
     let query = {};
 
+    // Admin ownership filter - regular admins only see their own leads
+    if (req.user.role === 'admin') {
+      query['createdBy.adminId'] = req.user._id;
+    }
+
     // If specific lead IDs provided, use those
     if (leadIds && leadIds.length > 0) {
       query._id = { $in: leadIds };
@@ -603,7 +691,9 @@ router.post('/export-csv', adminAuth, [
       }
     }
 
-    const leads = await Lead.find(query).sort({ createdAt: -1 });
+    const leads = await Lead.find(query)
+      .populate('createdBy.adminId', 'name email')
+      .sort({ createdAt: -1 });
 
     if (leads.length === 0) {
       return res.status(404).json({ error: 'No leads found for export' });
@@ -619,7 +709,8 @@ router.post('/export-csv', adminAuth, [
       'Lead Source': lead.leadSource,
       'Notes': lead.notes || '',
       'Follow-Up Date': lead.followUpDate ? lead.followUpDate.toISOString().split('T')[0] : '',
-      'Date Added': lead.createdAt.toISOString().split('T')[0]
+      'Date Added': lead.createdAt.toISOString().split('T')[0],
+      'Created By': req.user.role === 'superadmin' ? lead.createdBy.adminName : 'You'
     }));
 
     // Configure CSV parser
@@ -632,7 +723,8 @@ router.post('/export-csv', adminAuth, [
       'Lead Source',
       'Notes',
       'Follow-Up Date',
-      'Date Added'
+      'Date Added',
+      'Created By'
     ];
 
     const json2csvParser = new Parser({ fields });

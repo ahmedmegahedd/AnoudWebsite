@@ -7,6 +7,7 @@ const JobSchema = new mongoose.Schema({
   salary_en: { type: String, required: true },
   experience_en: { type: String, required: true },
   description_en: { type: String, required: true },
+  industry_en: { type: String, required: true },
   
   // Arabic fields
   title_ar: { type: String, required: true },
@@ -14,6 +15,7 @@ const JobSchema = new mongoose.Schema({
   salary_ar: { type: String, required: true },
   experience_ar: { type: String, required: true },
   description_ar: { type: String, required: true },
+  industry_ar: { type: String, required: true },
   
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
   type: { 
@@ -23,6 +25,7 @@ const JobSchema = new mongoose.Schema({
     default: 'Full-Time'
   },
   featured: { type: Boolean, default: false }, // For home page display
+  isActive: { type: Boolean, default: true }, // Controls job visibility
   postedAt: { type: Date, default: Date.now },
 });
 

@@ -134,7 +134,10 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/companies', require('./routes/companies'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/leads', require('./routes/leads'));
-app.use('/api/cv-upload', require('./routes/cvUpload'));
+app.use('/api/media', require('./routes/media'));
+
+// Serve uploaded media files
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve static files from frontend build (production only)
 if (isProduction) {
@@ -147,60 +150,8 @@ if (isProduction) {
   });
 }
 
-// Seed admin users function
-const seedAdmin = async () => {
-  try {
-    const User = require('./models/User');
-    
-    // Check if first admin already exists
-    const existingAdmin = await User.findOne({ email: 'ahmedmegahedbis@gmail.com' });
-    
-    if (existingAdmin) {
-      console.log('✅ Admin user already exists:', existingAdmin.email);
-    } else {
-      // Hash password for first admin
-      const salt1 = await bcrypt.genSalt(10);
-      const hashedPassword1 = await bcrypt.hash('testt1', salt1);
-      
-      // Create first admin user
-      const adminUser = new User({
-        name: 'Ahmed Megahed',
-        email: 'ahmedmegahedbis@gmail.com',
-        phone: '1234567890',
-        password: hashedPassword1,
-        role: 'admin'
-      });
-      
-      await adminUser.save();
-      console.log('✅ Admin user created successfully:', adminUser.email);
-    }
-    
-    // Check if second superadmin already exists
-    const existingSuperAdmin = await User.findOne({ email: 'm.megahed@anoudjob.com' });
-    
-    if (existingSuperAdmin) {
-      console.log('✅ Super Admin user already exists:', existingSuperAdmin.email);
-    } else {
-      // Hash password for superadmin
-      const salt2 = await bcrypt.genSalt(10);
-      const hashedPassword2 = await bcrypt.hash('moh123', salt2);
-      
-      // Create superadmin user
-      const superAdminUser = new User({
-        name: 'M. Megahed',
-        email: 'm.megahed@anoudjob.com',
-        phone: '1234567890',
-        password: hashedPassword2,
-        role: 'superadmin'
-      });
-      
-      await superAdminUser.save();
-      console.log('✅ Super Admin user created successfully:', superAdminUser.email);
-    }
-  } catch (error) {
-    console.error('❌ Error seeding admin users:', error.message);
-  }
-};
+// Admin users are now managed manually through database
+// See user-seeds.json for initial admin and superadmin users
 
 // MongoDB connection
 const connectDB = async () => {
@@ -222,9 +173,6 @@ const connectDB = async () => {
     });
     
     console.log('✅ MongoDB connected successfully');
-    
-    // Seed admin users after successful connection
-    await seedAdmin();
   } catch (error) {
     console.error('❌ MongoDB connection failed:', error.message);
     process.exit(1);

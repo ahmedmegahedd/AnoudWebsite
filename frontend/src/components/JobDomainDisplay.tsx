@@ -13,6 +13,8 @@ interface JobDomainDisplayProps {
     };
     location_en?: string;
     location_ar?: string;
+    industry_en?: string;
+    industry_ar?: string;
   };
 }
 

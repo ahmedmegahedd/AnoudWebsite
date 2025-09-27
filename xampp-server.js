@@ -145,7 +145,10 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/companies', require('./routes/companies'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/leads', require('./routes/leads'));
-app.use('/api/cv-upload', require('./routes/cvUpload'));
+app.use('/api/media', require('./routes/media'));
+
+// Serve uploaded media files
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 404 handler for API routes (before static file serving)
 app.use('/api/*', (req, res) => {

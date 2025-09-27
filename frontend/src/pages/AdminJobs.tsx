@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../context/NotificationContext';
@@ -31,8 +31,12 @@ interface Job {
   experience_ar: string;
   description_en: string;
   description_ar: string;
+  industry_en: string;
+  industry_ar: string;
   postedAt: string;
   featured?: boolean; // Added featured property
+  isActive?: boolean; // Added isActive property
+  applicantCount?: number; // Added applicant count
 }
 
 // Interface for JobForm (with company as string ID)
@@ -50,7 +54,10 @@ interface JobFormData {
   experience_ar: string;
   description_en: string;
   description_ar: string;
+  industry_en: string;
+  industry_ar: string;
   featured: boolean;
+  isActive: boolean;
 }
 
 const AdminJobs: React.FC = () => {
@@ -58,7 +65,7 @@ const AdminJobs: React.FC = () => {
   const { t } = useTranslation();
   const { showNotification } = useNotification();
   const { companies, loading: companiesLoading, error: companiesError, addCompany, updateCompany, deleteCompany } = useCompanies();
-  const { jobs, loading: jobsLoading, error: jobsError, addJob, updateJob, deleteJob } = useJobs();
+  const { jobs, loading: jobsLoading, error: jobsError, addJob, updateJob, deleteJob, toggleActive, fetchAdminJobs } = useJobs();
   
   const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(new Set());
   const [showCompanyForm, setShowCompanyForm] = useState(false);
@@ -67,6 +74,11 @@ const AdminJobs: React.FC = () => {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [editingJob, setEditingJob] = useState<Job | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch admin jobs on component mount
+  useEffect(() => {
+    fetchAdminJobs();
+  }, [fetchAdminJobs]);
 
   const toggleCompanyExpansion = (companyId: string) => {
     const newExpanded = new Set(expandedCompanies);
@@ -92,6 +104,15 @@ const AdminJobs: React.FC = () => {
         console.error('Error deleting job:', error);
         showNotification('Failed to delete job', 'error');
       }
+    }
+  };
+
+  const handleToggleActive = async (jobId: string) => {
+    try {
+      await toggleActive(jobId);
+    } catch (error) {
+      console.error('Error toggling job active status:', error);
+      showNotification('Failed to toggle job status', 'error');
     }
   };
 
@@ -150,7 +171,10 @@ const AdminJobs: React.FC = () => {
       experience_ar: job.experience_ar,
       description_en: job.description_en,
       description_ar: job.description_ar,
-      featured: job.featured || false // Convert boolean to JobFormData
+      industry_en: job.industry_en,
+      industry_ar: job.industry_ar,
+      featured: job.featured || false, // Convert boolean to JobFormData
+      isActive: job.isActive !== undefined ? job.isActive : true // Default to true for new jobs
     };
   };
 
@@ -352,7 +376,21 @@ const AdminJobs: React.FC = () => {
                                       fontSize: '0.8rem'
                                     }}
                                   >
-                                    View Applicants
+                                    View Applicants ({job.applicantCount || 0})
+                                  </button>
+                                  <button
+                                    onClick={() => handleToggleActive(job._id)}
+                                    style={{
+                                      background: job.isActive ? 'var(--error)' : 'var(--success)',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: 'var(--radius)',
+                                      padding: '0.25rem 0.75rem',
+                                      cursor: 'pointer',
+                                      fontSize: '0.8rem'
+                                    }}
+                                  >
+                                    {job.isActive ? 'Deactivate' : 'Activate'}
                                   </button>
                                   <button
                                     onClick={() => handleEditJob(job)}
@@ -573,7 +611,21 @@ const AdminJobs: React.FC = () => {
                                       fontSize: '0.8rem'
                                     }}
                                   >
-                                    View Applicants
+                                    View Applicants ({job.applicantCount || 0})
+                                  </button>
+                                  <button
+                                    onClick={() => handleToggleActive(job._id)}
+                                    style={{
+                                      background: job.isActive ? 'var(--error)' : 'var(--success)',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: 'var(--radius)',
+                                      padding: '0.25rem 0.75rem',
+                                      cursor: 'pointer',
+                                      fontSize: '0.8rem'
+                                    }}
+                                  >
+                                    {job.isActive ? 'Deactivate' : 'Activate'}
                                   </button>
                                   <button
                                     onClick={() => handleEditJob(job)}

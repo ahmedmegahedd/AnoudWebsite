@@ -1,0 +1,42 @@
+{
+  "admin_users": [
+    {
+      "name": "Ahmed Megahed",
+      "email": "ahmedmegahedbis@gmail.com",
+      "phone": "1234567890",
+      "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+      "role": "admin",
+      "customColumns": [],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "superadmin_users": [
+    {
+      "name": "M. Megahed",
+      "email": "m.megahed@anoudjob.com",
+      "phone": "1234567890",
+      "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+      "role": "superadmin",
+      "customColumns": [],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "instructions": {
+    "description": "These are the user documents to manually insert into the 'users' collection in MongoDB",
+    "admin_credentials": {
+      "email": "ahmedmegahedbis@gmail.com",
+      "password": "testt1"
+    },
+    "superadmin_credentials": {
+      "email": "m.megahed@anoudjob.com", 
+      "password": "moh123"
+    },
+    "note": "The password field contains bcrypt hashed passwords. Use the credentials above to login.",
+    "mongodb_insert_commands": [
+      "db.users.insertOne({ \"name\": \"Ahmed Megahed\", \"email\": \"ahmedmegahedbis@gmail.com\", \"phone\": \"1234567890\", \"password\": \"$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi\", \"role\": \"admin\", \"customColumns\": [], \"createdAt\": new Date(\"2024-01-01T00:00:00.000Z\"), \"updatedAt\": new Date(\"2024-01-01T00:00:00.000Z\") })",
+      "db.users.insertOne({ \"name\": \"M. Megahed\", \"email\": \"m.megahed@anoudjob.com\", \"phone\": \"1234567890\", \"password\": \"$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi\", \"role\": \"superadmin\", \"customColumns\": [], \"createdAt\": new Date(\"2024-01-01T00:00:00.000Z\"), \"updatedAt\": new Date(\"2024-01-01T00:00:00.000Z\") })"
+    ]
+  }
+}

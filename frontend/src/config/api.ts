@@ -2,7 +2,7 @@
 const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
 export const API_BASE_URL = isDevelopment 
-  ? 'http://localhost:3234/api'  // Local development - matches backend port
+  ? 'http://localhost:4325/api'  // Local development - matches backend port
   : `${window.location.protocol}//${window.location.host}/api`; // Production - uses current domain
 
 if (isDevelopment) {
@@ -20,5 +20,5 @@ export const API_ENDPOINTS = {
   ADMIN: '/admin',
   CONTACT: '/contact',
   LEADS: '/leads',
-  CV_UPLOAD: '/cv-upload'
+  MEDIA: '/media',
 } as const;
